@@ -1,0 +1,45 @@
+INFO 2026-01-08 13:56:06,275 autoreload Watching for file changes with StatReloader
+INFO 2026-01-08 13:56:12,586 basehttp code 400, message Bad request version ('jj\x13\x01\x13\x02\x13\x03À+À/À,À0Ì©Ì¨À\x13À\x14\x00\x9c\x00\x9d\x00/\x005\x01\x00\x06¥')
+ERROR 2026-01-08 13:56:12,588 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2026-01-08 13:56:12,838 basehttp code 400, message Bad request version ('jj\x13\x01\x13\x02\x13\x03À+À/À,À0Ì©Ì¨À\x13À\x14\x00\x9c\x00\x9d\x00/\x005\x01\x00\x06Eúú\x00\x00\x00')
+ERROR 2026-01-08 13:56:12,841 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2026-01-08 13:56:12,895 basehttp code 400, message Bad request version ('\x02h2\x08http/1.1\x00')
+ERROR 2026-01-08 13:56:12,897 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2026-01-08 13:56:13,161 basehttp code 400, message Bad request version ('åM¶\x06\x96=')
+ERROR 2026-01-08 13:56:13,162 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2026-01-08 13:58:39,146 autoreload Watching for file changes with StatReloader
+INFO 2026-01-08 13:58:42,621 basehttp "GET / HTTP/1.1" 200 1662
+INFO 2026-01-08 13:58:42,783 basehttp "GET /static/drf-yasg/style.css HTTP/1.1" 200 1047
+INFO 2026-01-08 13:58:42,833 basehttp "GET /static/drf-yasg/swagger-ui-dist/swagger-ui.css HTTP/1.1" 200 145206
+INFO 2026-01-08 13:58:42,941 basehttp "GET /static/drf-yasg/swagger-ui-dist/swagger-ui-bundle.js HTTP/1.1" 200 1046583
+INFO 2026-01-08 13:58:43,026 basehttp "GET /static/drf-yasg/insQ.min.js HTTP/1.1" 200 2093
+INFO 2026-01-08 13:58:43,143 basehttp "GET /static/drf-yasg/swagger-ui-init.js HTTP/1.1" 200 15480
+INFO 2026-01-08 13:58:43,184 basehttp "GET /static/drf-yasg/immutable.min.js HTTP/1.1" 200 56904
+INFO 2026-01-08 13:58:43,233 basehttp "GET /static/drf-yasg/swagger-ui-dist/swagger-ui-standalone-preset.js HTTP/1.1" 200 322863
+INFO 2026-01-08 13:58:43,544 basehttp "GET /?format=openapi HTTP/1.1" 200 6022
+INFO 2026-01-08 13:58:43,583 basehttp "GET /static/drf-yasg/swagger-ui-dist/favicon-32x32.png HTTP/1.1" 200 628
+INFO 2026-01-08 14:00:12,642 autoreload Watching for file changes with StatReloader
+INFO 2026-01-08 14:00:16,084 basehttp "GET / HTTP/1.1" 200 1662
+INFO 2026-01-08 14:00:16,535 basehttp "GET /?format=openapi HTTP/1.1" 200 6022
+INFO 2026-01-08 14:00:18,740 basehttp "GET /admin HTTP/1.1" 301 0
+INFO 2026-01-08 14:00:18,774 basehttp "GET /admin/ HTTP/1.1" 302 0
+INFO 2026-01-08 14:00:19,075 basehttp "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4155
+INFO 2026-01-08 14:00:19,228 basehttp "GET /static/admin/css/base.css HTTP/1.1" 200 21544
+INFO 2026-01-08 14:00:19,252 basehttp "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2682
+INFO 2026-01-08 14:00:19,274 basehttp "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+INFO 2026-01-08 14:00:19,297 basehttp "GET /static/admin/css/login.css HTTP/1.1" 200 958
+INFO 2026-01-08 14:00:19,328 basehttp "GET /static/admin/css/responsive.css HTTP/1.1" 200 17905
+INFO 2026-01-08 14:00:19,373 basehttp "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+INFO 2026-01-08 14:00:19,425 basehttp "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+WARNING 2026-01-08 14:00:19,472 log Not Found: /favicon.ico
+WARNING 2026-01-08 14:00:19,474 basehttp "GET /favicon.ico HTTP/1.1" 404 2734
+INFO 2026-01-08 14:00:33,622 basehttp "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+INFO 2026-01-08 14:00:33,705 basehttp "GET /admin/ HTTP/1.1" 200 7956
+INFO 2026-01-08 14:00:33,763 basehttp "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+INFO 2026-01-08 14:00:33,796 basehttp "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+INFO 2026-01-08 14:00:33,796 basehttp "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+INFO 2026-01-08 14:02:39,258 basehttp "POST /auth/register/ HTTP/1.1" 201 143
+WARNING 2026-01-08 14:03:30,270 log Not Found: /auth/verify-email/http://localhost:5173/verify-email/eedb466a-7529-4c13-a1d8-f954435d70aa/
+WARNING 2026-01-08 14:03:30,273 basehttp "POST /auth/verify-email/http%3A%2F%2Flocalhost%3A5173%2Fverify-email%2Feedb466a-7529-4c13-a1d8-f954435d70aa/ HTTP/1.1" 404 4546
+INFO 2026-01-08 14:03:42,634 basehttp "POST /auth/verify-email/eedb466a-7529-4c13-a1d8-f954435d70aa/ HTTP/1.1" 200 41
+INFO 2026-01-08 14:04:30,550 basehttp "POST /auth/login/ HTTP/1.1" 200 741
