@@ -293,3 +293,12 @@ class CertificationStatusSerializer(serializers.Serializer):
     )
     
     vendors_without_certifications = VendorListSerializer(many=True)
+
+
+class CompareVendorsSerializer(serializers.Serializer):
+    """Serializer for comparing multiple vendors"""
+    vendor_ids = serializers.ListField(
+        child=serializers.UUIDField(),
+        allow_empty=False
+    )
+    

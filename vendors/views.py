@@ -14,10 +14,12 @@ from .serializers import (
     VendorRiskScoreSerializer, VendorDependencySerializer, VendorComparisonSerializer,
     VendorSummarySerializer, IncidentHistorySerializer, IncidentTrendsSerializer,
     ComplianceCertificationSerializer, CertificationStatusSerializer,
-    VendorContactSerializer
+    VendorContactSerializer, CompareVendorsSerializer
 )
+from drf_yasg.utils import swagger_auto_schema
 
 
+@swagger_auto_schema(methods=['POST'], request_body=VendorCreateUpdateSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def vendor_list_create(request):
@@ -85,6 +87,7 @@ def vendor_list_create(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=VendorCreateUpdateSerializer)
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def vendor_detail(request, vendor_id):
@@ -136,6 +139,7 @@ def vendor_detail(request, vendor_id):
         
         vendor.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 
 @api_view(['POST'])
@@ -279,12 +283,16 @@ def vendor_summary(request):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['POST'], request_body=CompareVendorsSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def compare_vendors(request):
     """Compare multiple vendors"""
     
-    vendor_ids = request.data.get('vendor_ids', [])
+    serializer = CompareVendorsSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    vendor_ids = serializer.validated_data['vendor_ids']
     
     if len(vendor_ids) < 2:
         return Response(
