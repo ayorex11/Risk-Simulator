@@ -159,51 +159,124 @@ def scenario_parameters(request, template_id):
     template = get_object_or_404(ScenarioTemplate, id=template_id)
     
     # Add descriptions for parameters based on scenario type
+    # These match what the simulation engine actually uses
     parameter_descriptions = {}
+    parameter_types = {}
+    parameter_constraints = {}
     
     if template.scenario_type == 'data_breach':
         parameter_descriptions = {
-            'breach_vector': 'How the breach occurred (phishing, malware, etc.)',
-            'records_compromised': 'Number of records affected',
-            'data_types': 'Types of data exposed (PII, financial, healthcare)',
-            'detection_time_hours': 'Time to detect the breach',
-            'attacker_dwell_time_days': 'How long attacker had access'
+            'breach_vector': 'How the breach occurred (phishing, malware, sql_injection, misconfiguration, insider_threat)',
+            'records_compromised': 'Number of records affected/exfiltrated',
+            'data_types': 'Types of data exposed - choose multiple: [PII, financial, healthcare, intellectual_property, credentials]',
+            'detection_time_hours': 'Time taken to detect the breach (hours)',
+            'attacker_dwell_time_days': 'How long attacker had access before detection (days)'
         }
+        parameter_types = {
+            'breach_vector': 'select',
+            'records_compromised': 'number',
+            'data_types': 'multi-select',
+            'detection_time_hours': 'number',
+            'attacker_dwell_time_days': 'number'
+        }
+        parameter_constraints = {
+            'records_compromised': {'min': 1, 'max': 100000000},
+            'detection_time_hours': {'min': 1, 'max': 8760},  # Up to 1 year
+            'attacker_dwell_time_days': {'min': 1, 'max': 365}
+        }
+        
     elif template.scenario_type == 'ransomware':
         parameter_descriptions = {
-            'encryption_scope': 'Extent of encryption (partial, full)',
-            'ransom_amount': 'Demanded ransom in USD',
-            'downtime_hours': 'Expected downtime duration',
-            'backup_available': 'Whether backups are available',
-            'restoration_difficulty': 'Difficulty of restoration (low, medium, high)'
+            'encryption_scope': 'Extent of encryption - full (all systems) or partial (limited systems)',
+            'ransom_amount': 'Demanded ransom amount in USD',
+            'downtime_hours': 'Expected total downtime duration (hours)',
+            'backup_available': 'Whether viable backups are available for restoration',
+            'restoration_difficulty': 'Difficulty level of restoration process (low, medium, high, very_high)'
         }
-
+        parameter_types = {
+            'encryption_scope': 'select',
+            'ransom_amount': 'number',
+            'downtime_hours': 'number',
+            'backup_available': 'boolean',
+            'restoration_difficulty': 'select'
+        }
+        parameter_constraints = {
+            'ransom_amount': {'min': 0, 'max': 100000000},
+            'downtime_hours': {'min': 1, 'max': 720},  # Up to 30 days
+            'encryption_scope': ['full', 'partial'],
+            'restoration_difficulty': ['low', 'medium', 'high', 'very_high']
+        }
+    
     elif template.scenario_type == 'service_disruption':
         parameter_descriptions = {
-            'disruption_cause': 'Cause of disruption (DDoS, hardware failure, etc.)',
-            'affected_services': 'Services impacted by the disruption',
-            'duration_hours': 'Duration of the disruption',
-            'customer_impact_level': 'Level of customer impact (low, medium, high)',
-            'mitigation_measures': 'Measures in place to mitigate disruption'
+            'duration_hours': 'Total duration of service disruption (hours)',
+            'disruption_cause': 'Root cause of disruption (infrastructure_failure, cyber_attack, natural_disaster, human_error, third_party_failure)',
+            'affected_services': 'Which services are impacted ([primary, secondary, backup, all])',
+            'customer_impact_percentage': 'Percentage of customers affected (0-100)',
+            'sla_breach': 'Whether this disruption breaches SLA commitments'
         }
-
+        parameter_types = {
+            'duration_hours': 'number',
+            'disruption_cause': 'select',
+            'affected_services': 'multi-select',
+            'customer_impact_percentage': 'number',
+            'sla_breach': 'boolean'
+        }
+        parameter_constraints = {
+            'duration_hours': {'min': 1, 'max': 720},
+            'customer_impact_percentage': {'min': 0, 'max': 100},
+            'disruption_cause': ['infrastructure_failure', 'cyber_attack', 'natural_disaster', 'human_error', 'third_party_failure'],
+            'affected_services': ['primary', 'secondary', 'backup', 'all']
+        }
+    
     elif template.scenario_type == 'supply_chain':
         parameter_descriptions = {
-            'supplier_type': 'Type of supplier affected',
-            'disruption_type': 'Type of disruption (delay, quality issue, etc.)',
-            'duration_days': 'Duration of the disruption',
-            'criticality_level': 'Criticality of the supplier to operations',
-            'mitigation_strategies': 'Strategies to mitigate supply chain risks'
+            'compromise_method': 'How the supply chain was compromised (build_system, update_server, source_code_repo, dependency_injection, insider_threat)',
+            'deployment_scope': 'Scope of malicious deployment (all_customers, targeted_customers, internal_only)',
+            'detection_delay_days': 'Time until compromise was detected (days) - longer = worse impact',
+            'affected_downstream_count': 'Number of downstream customers/organizations affected',
+            'malware_type': 'Type of malicious payload (backdoor, data_exfiltration, ransomware, botnet)'
+        }
+        parameter_types = {
+            'compromise_method': 'select',
+            'deployment_scope': 'select',
+            'detection_delay_days': 'number',
+            'affected_downstream_count': 'number',
+            'malware_type': 'select'
+        }
+        parameter_constraints = {
+            'detection_delay_days': {'min': 1, 'max': 365},
+            'affected_downstream_count': {'min': 1, 'max': 10000},
+            'compromise_method': ['build_system', 'update_server', 'source_code_repo', 'dependency_injection', 'insider_threat'],
+            'deployment_scope': ['all_customers', 'targeted_customers', 'internal_only'],
+            'malware_type': ['backdoor', 'data_exfiltration', 'ransomware', 'botnet']
         }
     
     elif template.scenario_type == 'multi_vendor':
         parameter_descriptions = {
-            'vendors_involved': 'List of vendors involved in the scenario',
-            'disruption_cause': 'Cause of disruption affecting multiple vendors',
-            'overall_duration_days': 'Overall duration of the disruption',
-            'cascading_effects': 'Potential cascading effects on operations',
-            'risk_mitigation_plans': 'Plans to mitigate risks from multiple vendors'
+            'initial_failure_type': 'Type of initial failure that triggers cascade (data_breach, ransomware, service_disruption)',
+            'cascade_probability': 'Probability that failure cascades to dependent vendors (0.0 to 1.0)',
+            'max_cascade_depth': 'Maximum depth of cascade chain to simulate (1-5 levels)',
+            'simultaneous_failures': 'Number of vendors that fail simultaneously in initial event',
+            'recovery_coordination': 'Level of recovery coordination between vendors (none, partial, full)'
         }
+        parameter_types = {
+            'initial_failure_type': 'select',
+            'cascade_probability': 'number',
+            'max_cascade_depth': 'number',
+            'simultaneous_failures': 'number',
+            'recovery_coordination': 'select'
+        }
+        parameter_constraints = {
+            'cascade_probability': {'min': 0.0, 'max': 1.0, 'step': 0.1},
+            'max_cascade_depth': {'min': 1, 'max': 5},
+            'simultaneous_failures': {'min': 1, 'max': 10},
+            'initial_failure_type': ['data_breach', 'ransomware', 'service_disruption'],
+            'recovery_coordination': ['none', 'partial', 'full']
+        }
+    
+    # Additional helpful information
+    example_scenarios = _get_example_scenarios(template.scenario_type)
     
     return Response({
         'scenario_type': template.scenario_type,
@@ -211,8 +284,164 @@ def scenario_parameters(request, template_id):
         'description': template.description,
         'default_parameters': template.default_parameters,
         'calculation_config': template.calculation_config,
-        'parameter_descriptions': parameter_descriptions
+        'parameter_descriptions': parameter_descriptions,
+        'parameter_types': parameter_types,
+        'parameter_constraints': parameter_constraints,
+        'example_scenarios': example_scenarios,
+        'estimated_execution_time': _estimate_execution_time(template.scenario_type)
     })
+
+def _get_example_scenarios(scenario_type):
+    """Get example scenarios for each type"""
+    
+    examples = {
+        'data_breach': [
+            {
+                'name': 'Small Phishing Breach',
+                'description': 'Limited breach via phishing attack',
+                'parameters': {
+                    'breach_vector': 'phishing',
+                    'records_compromised': 5000,
+                    'data_types': ['PII'],
+                    'detection_time_hours': 48,
+                    'attacker_dwell_time_days': 14
+                },
+                'estimated_impact': '$750K - $1.2M'
+            },
+            {
+                'name': 'Major Database Breach',
+                'description': 'Large-scale database compromise',
+                'parameters': {
+                    'breach_vector': 'sql_injection',
+                    'records_compromised': 100000,
+                    'data_types': ['PII', 'financial', 'healthcare'],
+                    'detection_time_hours': 120,
+                    'attacker_dwell_time_days': 90
+                },
+                'estimated_impact': '$15M - $25M'
+            }
+        ],
+        'ransomware': [
+            {
+                'name': 'Limited Ransomware (With Backups)',
+                'description': 'Partial encryption but backups available',
+                'parameters': {
+                    'encryption_scope': 'partial',
+                    'ransom_amount': 100000,
+                    'downtime_hours': 48,
+                    'backup_available': True,
+                    'restoration_difficulty': 'medium'
+                },
+                'estimated_impact': '$500K - $1M'
+            },
+            {
+                'name': 'Severe Ransomware (No Backups)',
+                'description': 'Full encryption without viable backups',
+                'parameters': {
+                    'encryption_scope': 'full',
+                    'ransom_amount': 5000000,
+                    'downtime_hours': 336,  # 2 weeks
+                    'backup_available': False,
+                    'restoration_difficulty': 'very_high'
+                },
+                'estimated_impact': '$20M - $40M'
+            }
+        ],
+        'service_disruption': [
+            {
+                'name': 'Brief Outage',
+                'description': 'Short infrastructure failure',
+                'parameters': {
+                    'duration_hours': 4,
+                    'disruption_cause': 'infrastructure_failure',
+                    'affected_services': ['secondary'],
+                    'customer_impact_percentage': 20,
+                    'sla_breach': False
+                },
+                'estimated_impact': '$50K - $150K'
+            },
+            {
+                'name': 'Major Cyber Attack Outage',
+                'description': 'Extended outage from cyber attack',
+                'parameters': {
+                    'duration_hours': 72,
+                    'disruption_cause': 'cyber_attack',
+                    'affected_services': ['all'],
+                    'customer_impact_percentage': 100,
+                    'sla_breach': True
+                },
+                'estimated_impact': '$5M - $15M'
+            }
+        ],
+        'supply_chain': [
+            {
+                'name': 'Limited Supply Chain Attack',
+                'description': 'Targeted compromise with quick detection',
+                'parameters': {
+                    'compromise_method': 'dependency_injection',
+                    'deployment_scope': 'targeted_customers',
+                    'detection_delay_days': 30,
+                    'affected_downstream_count': 50,
+                    'malware_type': 'backdoor'
+                },
+                'estimated_impact': '$2M - $5M'
+            },
+            {
+                'name': 'SolarWinds-Style Attack',
+                'description': 'Widespread supply chain compromise',
+                'parameters': {
+                    'compromise_method': 'build_system',
+                    'deployment_scope': 'all_customers',
+                    'detection_delay_days': 180,
+                    'affected_downstream_count': 18000,
+                    'malware_type': 'backdoor'
+                },
+                'estimated_impact': '$50M - $100M+'
+            }
+        ],
+        'multi_vendor': [
+            {
+                'name': 'Limited Cascade',
+                'description': 'Small cascade effect',
+                'parameters': {
+                    'initial_failure_type': 'service_disruption',
+                    'cascade_probability': 0.3,
+                    'max_cascade_depth': 2,
+                    'simultaneous_failures': 1,
+                    'recovery_coordination': 'full'
+                },
+                'estimated_impact': '$1M - $3M'
+            },
+            {
+                'name': 'Severe Cascade',
+                'description': 'Major cascading failure',
+                'parameters': {
+                    'initial_failure_type': 'ransomware',
+                    'cascade_probability': 0.8,
+                    'max_cascade_depth': 4,
+                    'simultaneous_failures': 3,
+                    'recovery_coordination': 'none'
+                },
+                'estimated_impact': '$25M - $75M'
+            }
+        ]
+    }
+    
+    return examples.get(scenario_type, [])
+
+
+def _estimate_execution_time(scenario_type):
+    """Estimate execution time for scenario"""
+    
+    times = {
+        'data_breach': '2-5 seconds',
+        'ransomware': '2-5 seconds',
+        'service_disruption': '1-3 seconds',
+        'supply_chain': '3-7 seconds',
+        'multi_vendor': '5-15 seconds (depends on cascade depth)'
+    }
+    
+    return times.get(scenario_type, '2-5 seconds')
 
 
 # ==================== SIMULATION ENDPOINTS ====================
