@@ -10,10 +10,11 @@ from .models import Organization, UserProfile
 from .serializers import (
     UserSerializer, UserListSerializer, UserProfileSerializer,
     OrganizationSerializer, OrganizationDetailSerializer,
-    OrganizationStatsSerializer
+    OrganizationStatsSerializer, ChangePasswordSerializer
 )
 
 User = get_user_model()
+from drf_yasg.utils import swagger_auto_schema
 
 
 
@@ -25,6 +26,7 @@ def get_current_user(request):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=UserSerializer)
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def update_current_user(request):
@@ -107,6 +109,7 @@ def get_user_detail(request, user_id):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=UserSerializer)
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def update_user(request, user_id):
@@ -132,6 +135,7 @@ def update_user(request, user_id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=UserProfileSerializer)
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def update_user_profile(request, user_id):
@@ -179,6 +183,7 @@ def get_organization(request):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=OrganizationSerializer)
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def update_organization(request):
@@ -208,6 +213,7 @@ def update_organization(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(methods=['POST'], request_body=OrganizationSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_organization(request):
@@ -401,13 +407,17 @@ def get_user_permissions(request):
     return Response(permissions)
 
 
+@swagger_auto_schema(methods=['POST'], request_body=ChangePasswordSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def change_password(request):
     """Change current user's password"""
-    old_password = request.data.get('old_password')
-    new_password = request.data.get('new_password')
-    confirm_password = request.data.get('confirm_password')
+    serializer = ChangePasswordSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+    old_password = serializer.validated_data.get('old_password')
+    new_password = serializer.validated_data.get('new_password')    
+    confirm_password = serializer.validated_data.get('confirm_new_password')
     
     if not all([old_password, new_password, confirm_password]):
         return Response(

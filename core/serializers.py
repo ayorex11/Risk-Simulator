@@ -132,3 +132,9 @@ class OrganizationStatsSerializer(serializers.Serializer):
     vendors_by_risk_level = serializers.DictField()
     recent_assessments = serializers.IntegerField()
     expiring_certifications = serializers.IntegerField()
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """Serializer for changing user password"""
+    old_password = serializers.CharField(write_only=True, required=True)
+    new_password = serializers.CharField(write_only=True, required=True)
+    confirm_new_password = serializers.CharField(write_only=True, required=True)
