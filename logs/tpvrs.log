@@ -94,3 +94,17 @@ INFO 2026-01-09 15:59:17,847 basehttp "GET /admin/simulations/businessprocess/ H
 INFO 2026-01-09 15:59:17,889 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
 INFO 2026-01-09 15:59:51,458 basehttp "GET /admin/vendors/vendor/ HTTP/1.1" 200 15568
 INFO 2026-01-09 15:59:51,504 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-01-13 19:34:36,849 autoreload Watching for file changes with StatReloader
+INFO 2026-01-13 19:34:54,582 basehttp "GET / HTTP/1.1" 200 1662
+INFO 2026-01-13 19:34:54,881 basehttp "GET /static/drf-yasg/style.css HTTP/1.1" 200 1047
+INFO 2026-01-13 19:34:55,055 basehttp "GET /static/drf-yasg/insQ.min.js HTTP/1.1" 200 2093
+INFO 2026-01-13 19:34:55,066 basehttp "GET /static/drf-yasg/swagger-ui-dist/swagger-ui.css HTTP/1.1" 200 145206
+INFO 2026-01-13 19:34:55,080 basehttp "GET /static/drf-yasg/swagger-ui-dist/swagger-ui-bundle.js HTTP/1.1" 200 1046583
+INFO 2026-01-13 19:34:55,086 basehttp "GET /static/drf-yasg/swagger-ui-init.js HTTP/1.1" 200 15480
+INFO 2026-01-13 19:34:55,140 basehttp "GET /static/drf-yasg/immutable.min.js HTTP/1.1" 200 56904
+INFO 2026-01-13 19:34:55,253 basehttp "GET /static/drf-yasg/swagger-ui-dist/swagger-ui-standalone-preset.js HTTP/1.1" 200 322863
+INFO 2026-01-13 19:34:55,614 basehttp "GET /?format=openapi HTTP/1.1" 200 25479
+INFO 2026-01-13 19:34:55,615 basehttp "GET /static/drf-yasg/swagger-ui-dist/favicon-32x32.png HTTP/1.1" 200 628
+INFO 2026-01-13 22:59:34,452 autoreload Watching for file changes with StatReloader
+INFO 2026-01-13 22:59:41,888 basehttp "GET / HTTP/1.1" 200 1662
+INFO 2026-01-13 22:59:42,598 basehttp "GET /?format=openapi HTTP/1.1" 200 27867
