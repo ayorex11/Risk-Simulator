@@ -90,6 +90,7 @@ def assessment_list_create(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=VendorAssessmentCreateUpdateSerializer)
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def assessment_detail(request, assessment_id):
@@ -307,7 +308,7 @@ def assessment_summary(request):
     return Response(serializer.data)
 
 
-
+@swagger_auto_schema(methods=['POST'], request_body=AssessmentQuestionSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def question_list_create(request):
@@ -343,6 +344,7 @@ def question_list_create(request):
             question = serializer.save(created_by=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['GET'])
@@ -389,6 +391,7 @@ def get_questionnaire_template(request):
 
 
 
+@swagger_auto_schema(methods=['POST'], request_body=AssessmentTemplateSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def template_list_create(request):
@@ -428,7 +431,7 @@ def template_detail(request, template_id):
 
 
 
-
+@swagger_auto_schema(methods=['POST'], request_body=AssessmentEvidenceSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def evidence_list_create(request, assessment_id):
