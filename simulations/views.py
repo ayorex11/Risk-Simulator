@@ -22,12 +22,13 @@ from .serializers import (
     SimulationSummarySerializer, MonteCarloResultSerializer,
     BatchSimulationSerializer
 )
-
+from drf_yasg.utils import swagger_auto_schema
 import logging
 
 logger = logging.getLogger('simulations')
 # ==================== BUSINESS PROCESS ENDPOINTS ====================
 
+@swagger_auto_schema(methods=['POST'], request_body=BusinessProcessSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def process_list_create(request):
@@ -82,6 +83,7 @@ def process_list_create(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=BusinessProcessSerializer)
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def process_detail(request, process_id):
@@ -175,7 +177,33 @@ def scenario_parameters(request, template_id):
             'backup_available': 'Whether backups are available',
             'restoration_difficulty': 'Difficulty of restoration (low, medium, high)'
         }
-    # Add more for other scenario types
+
+    elif template.scenario_type == 'service_disruption':
+        parameter_descriptions = {
+            'disruption_cause': 'Cause of disruption (DDoS, hardware failure, etc.)',
+            'affected_services': 'Services impacted by the disruption',
+            'duration_hours': 'Duration of the disruption',
+            'customer_impact_level': 'Level of customer impact (low, medium, high)',
+            'mitigation_measures': 'Measures in place to mitigate disruption'
+        }
+
+    elif template.scenario_type == 'supply_chain':
+        parameter_descriptions = {
+            'supplier_type': 'Type of supplier affected',
+            'disruption_type': 'Type of disruption (delay, quality issue, etc.)',
+            'duration_days': 'Duration of the disruption',
+            'criticality_level': 'Criticality of the supplier to operations',
+            'mitigation_strategies': 'Strategies to mitigate supply chain risks'
+        }
+    
+    elif template.scenario_type == 'multi_vendor':
+        parameter_descriptions = {
+            'vendors_involved': 'List of vendors involved in the scenario',
+            'disruption_cause': 'Cause of disruption affecting multiple vendors',
+            'overall_duration_days': 'Overall duration of the disruption',
+            'cascading_effects': 'Potential cascading effects on operations',
+            'risk_mitigation_plans': 'Plans to mitigate risks from multiple vendors'
+        }
     
     return Response({
         'scenario_type': template.scenario_type,
@@ -189,6 +217,7 @@ def scenario_parameters(request, template_id):
 
 # ==================== SIMULATION ENDPOINTS ====================
 
+@swagger_auto_schema(methods=['POST'], request_body=SimulationCreateSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def simulation_list_create(request):
@@ -317,7 +346,7 @@ def execute_simulation(request, simulation_id):
         executive_summary = ReportGenerator.generate_executive_summary(result)
         
         return Response({
-            'message': '✨ Simulation completed successfully!',
+            'message': 'Simulation completed successfully!',
             'simulation': SimulationDetailSerializer(simulation).data,
             'result': SimulationResultSerializer(result).data,
             'executive_summary': executive_summary,
@@ -331,6 +360,7 @@ def execute_simulation(request, simulation_id):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@swagger_auto_schema(methods=['POST'], request_body=WhatIfAnalysisSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def what_if_analysis(request):
@@ -379,6 +409,7 @@ def what_if_analysis(request):
     }, status=status.HTTP_201_CREATED)
 
 
+@swagger_auto_schema(methods=['POST'], request_body=SimulationComparisonRequestSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def compare_simulations(request):
@@ -543,6 +574,7 @@ def result_detail(request, simulation_id):
 
 # ==================== BATCH OPERATIONS ====================
 
+@swagger_auto_schema(methods=['POST'], request_body=BatchSimulationSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def batch_create_simulations(request):
