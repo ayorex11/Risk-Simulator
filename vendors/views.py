@@ -357,6 +357,7 @@ def compare_vendors(request):
 
 
 
+@swagger_auto_schema(methods=['POST'], request_body=IncidentHistorySerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def incident_list_create(request):
@@ -419,6 +420,7 @@ def incident_list_create(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=IncidentHistorySerializer)
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def incident_detail(request, incident_id):
@@ -504,7 +506,7 @@ def incident_trends(request):
 
 
 
-
+@swagger_auto_schema(methods=['POST'], request_body=ComplianceCertificationSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def certification_list_create(request):
@@ -581,7 +583,7 @@ def certification_expiring_soon(request):
 
 
 
-
+@swagger_auto_schema(methods=['POST'], request_body=VendorContactSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def vendor_contact_list_create(request, vendor_id):
