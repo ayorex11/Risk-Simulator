@@ -3,10 +3,11 @@ from .models import (
     VendorAssessment, AssessmentQuestion, AssessmentTemplate,
     TemplateQuestion, AssessmentEvidence
 )
+from  django.core.validators import FileExtensionValidator
 
 
 class AssessmentEvidenceSerializer(serializers.ModelSerializer):
-    """Serializer for AssessmentEvidence"""
+    """Serializer for AssessmentEvidence with file validation"""
     uploaded_by_name = serializers.CharField(
         source='uploaded_by.get_full_name',
         read_only=True
@@ -14,6 +15,18 @@ class AssessmentEvidenceSerializer(serializers.ModelSerializer):
     evidence_type_display = serializers.CharField(
         source='get_evidence_type_display',
         read_only=True
+    )
+    file = serializers.FileField(
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=[
+                    'pdf', 'doc', 'docx', 'xls', 'xlsx', 
+                    'jpg', 'jpeg', 'png', 'gif',
+                    'txt', 'csv', 'zip'
+                ]
+            )
+        ],
+        help_text="Allowed file types: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG, GIF, TXT, CSV, ZIP"
     )
     
     class Meta:
@@ -24,6 +37,21 @@ class AssessmentEvidenceSerializer(serializers.ModelSerializer):
             'uploaded_by', 'uploaded_by_name', 'uploaded_at'
         ]
         read_only_fields = ['id', 'uploaded_at']
+    
+    def validate_file(self, value):
+        """Additional file validation"""
+        
+        max_size = 50 * 1024 * 1024  # 50MB limit
+        if value.size > max_size:
+            raise serializers.ValidationError(
+                f"File size cannot exceed 50MB. Current size: {value.size / (1024 * 1024):.2f}MB"
+            )
+        
+        # Validate file is not empty
+        if value.size == 0:
+            raise serializers.ValidationError("Empty files are not allowed.")
+        
+        return value
 
 
 class AssessmentQuestionSerializer(serializers.ModelSerializer):
