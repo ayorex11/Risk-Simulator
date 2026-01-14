@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q, Avg, Count
 from django.utils import timezone
 from datetime import timedelta
-
+from core.models import UserProfile
 from .models import (
     VendorAssessment, AssessmentQuestion, AssessmentTemplate,
     TemplateQuestion, AssessmentEvidence
@@ -26,8 +26,9 @@ from drf_yasg.utils import swagger_auto_schema
 @permission_classes([IsAuthenticated])
 def assessment_list_create(request):
     """List assessments or create new assessment"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
-    if not hasattr(request.user, 'profile') or not request.user.profile.organization:
+    if not hasattr(request.user, 'profile') or not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_400_BAD_REQUEST
@@ -36,7 +37,7 @@ def assessment_list_create(request):
     if request.method == 'GET':
         # Get assessments for organization's vendors
         vendor_ids = Vendor.objects.filter(
-            organization=request.user.profile.organization
+            organization= profile.organization
         ).values_list('id', flat=True)
         
         assessments = VendorAssessment.objects.filter(vendor_id__in=vendor_ids)
@@ -62,7 +63,7 @@ def assessment_list_create(request):
     
     elif request.method == 'POST':
         # Check permissions
-        if request.user.profile.role not in ['admin', 'analyst', 'manager']:
+        if profile.role not in ['admin', 'analyst', 'manager']:
             return Response(
                 {'error': 'Insufficient permissions to create assessments'},
                 status=status.HTTP_403_FORBIDDEN
@@ -76,7 +77,7 @@ def assessment_list_create(request):
         if serializer.is_valid():
             # Verify vendor belongs to organization
             vendor = serializer.validated_data['vendor']
-            if vendor.organization != request.user.profile.organization:
+            if vendor.organization != profile.organization:
                 return Response(
                     {'error': 'Vendor does not belong to your organization'},
                     status=status.HTTP_403_FORBIDDEN
@@ -95,11 +96,11 @@ def assessment_list_create(request):
 @permission_classes([IsAuthenticated])
 def assessment_detail(request, assessment_id):
     """Get, update, or delete an assessment"""
-    
+    profile = get_object_or_404(UserProfile, user=request.user)
     assessment = get_object_or_404(VendorAssessment, id=assessment_id)
     
     # Verify vendor belongs to organization
-    if assessment.vendor.organization != request.user.profile.organization:
+    if assessment.vendor.organization != profile.organization:
         return Response(
             {'error': 'Not authorized'},
             status=status.HTTP_403_FORBIDDEN
@@ -131,7 +132,7 @@ def assessment_detail(request, assessment_id):
     
     elif request.method == 'DELETE':
         # Only admins can delete
-        if request.user.profile.role != 'admin':
+        if profile.role != 'admin':
             return Response(
                 {'error': 'Admin permissions required'},
                 status=status.HTTP_403_FORBIDDEN
@@ -152,8 +153,9 @@ def assessment_detail(request, assessment_id):
 @permission_classes([IsAuthenticated])
 def approve_assessment(request, assessment_id):
     """Approve an assessment"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
-    if request.user.profile.role not in ['admin', 'manager']:
+    if profile.role not in ['admin', 'manager']:
         return Response(
             {'error': 'Only admins and managers can approve assessments'},
             status=status.HTTP_403_FORBIDDEN
@@ -161,7 +163,7 @@ def approve_assessment(request, assessment_id):
     
     assessment = get_object_or_404(VendorAssessment, id=assessment_id)
     
-    if assessment.vendor.organization != request.user.profile.organization:
+    if assessment.vendor.organization != profile.organization:
         return Response(
             {'error': 'Not authorized'},
             status=status.HTTP_403_FORBIDDEN
@@ -188,10 +190,10 @@ def approve_assessment(request, assessment_id):
 @permission_classes([IsAuthenticated])
 def compare_assessments(request, assessment_id):
     """Compare assessment with previous assessment for same vendor"""
-    
+    profile = get_object_or_404(UserProfile, user=request.user)
     current = get_object_or_404(VendorAssessment, id=assessment_id)
     
-    if current.vendor.organization != request.user.profile.organization:
+    if current.vendor.organization != profile.organization:
         return Response(
             {'error': 'Not authorized'},
             status=status.HTTP_403_FORBIDDEN
@@ -260,8 +262,9 @@ def compare_assessments(request, assessment_id):
 @permission_classes([IsAuthenticated])
 def assessment_summary(request):
     """Get assessment portfolio summary"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
-    org = request.user.profile.organization
+    org = profile.organization
     vendor_ids = Vendor.objects.filter(organization=org).values_list('id', flat=True)
     assessments = VendorAssessment.objects.filter(vendor_id__in=vendor_ids)
     
@@ -313,6 +316,7 @@ def assessment_summary(request):
 @permission_classes([IsAuthenticated])
 def question_list_create(request):
     """List questions or create new question (admin only)"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     if request.method == 'GET':
         questions = AssessmentQuestion.objects.filter(is_active=True)
@@ -332,7 +336,7 @@ def question_list_create(request):
         return Response(serializer.data)
     
     elif request.method == 'POST':
-        if request.user.profile.role != 'admin':
+        if profile.role != 'admin':
             return Response(
                 {'error': 'Admin permissions required'},
                 status=status.HTTP_403_FORBIDDEN
@@ -396,6 +400,7 @@ def get_questionnaire_template(request):
 @permission_classes([IsAuthenticated])
 def template_list_create(request):
     """List templates or create new template (admin only)"""
+    profile = get_object_or_404(UserProfile, user = request.user)
     
     if request.method == 'GET':
         templates = AssessmentTemplate.objects.filter(is_active=True)
@@ -403,7 +408,7 @@ def template_list_create(request):
         return Response(serializer.data)
     
     elif request.method == 'POST':
-        if request.user.profile.role != 'admin':
+        if profile.role != 'admin':
             return Response(
                 {'error': 'Admin permissions required'},
                 status=status.HTTP_403_FORBIDDEN
@@ -436,10 +441,11 @@ def template_detail(request, template_id):
 @permission_classes([IsAuthenticated])
 def evidence_list_create(request, assessment_id):
     """List or upload evidence for assessment"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     assessment = get_object_or_404(VendorAssessment, id=assessment_id)
     
-    if assessment.vendor.organization != request.user.profile.organization:
+    if assessment.vendor.organization != profile.organization:
         return Response(
             {'error': 'Not authorized'},
             status=status.HTTP_403_FORBIDDEN
@@ -469,17 +475,18 @@ def evidence_list_create(request, assessment_id):
 @permission_classes([IsAuthenticated])
 def evidence_delete(request, evidence_id):
     """Delete evidence"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     evidence = get_object_or_404(AssessmentEvidence, id=evidence_id)
     
-    if evidence.assessment.vendor.organization != request.user.profile.organization:
+    if evidence.assessment.vendor.organization != profile.organization:
         return Response(
             {'error': 'Not authorized'},
             status=status.HTTP_403_FORBIDDEN
         )
     
     # Can only delete if uploader or admin
-    if evidence.uploaded_by != request.user and request.user.profile.role != 'admin':
+    if evidence.uploaded_by != request.user and profile.role != 'admin':
         return Response(
             {'error': 'Only the uploader or admin can delete evidence'},
             status=status.HTTP_403_FORBIDDEN

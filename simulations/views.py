@@ -22,6 +22,7 @@ from .serializers import (
     SimulationSummarySerializer, MonteCarloResultSerializer,
     BatchSimulationSerializer
 )
+from core.models import UserProfile
 from drf_yasg.utils import swagger_auto_schema
 import logging
 
@@ -33,8 +34,9 @@ logger = logging.getLogger('simulations')
 @permission_classes([IsAuthenticated])
 def process_list_create(request):
     """List business processes or create new process"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
-    if not hasattr(request.user, 'profile') or not request.user.profile.organization:
+    if not hasattr(request.user, 'profile') or not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_400_BAD_REQUEST
@@ -42,7 +44,7 @@ def process_list_create(request):
     
     if request.method == 'GET':
         processes = BusinessProcess.objects.filter(
-            organization=request.user.profile.organization
+            organization= profile.organization
         )
         
         # Apply filters
@@ -63,7 +65,7 @@ def process_list_create(request):
         return Response(serializer.data)
     
     elif request.method == 'POST':
-        if request.user.profile.role not in ['admin', 'analyst', 'manager']:
+        if profile.role not in ['admin', 'analyst', 'manager']:
             return Response(
                 {'error': 'Insufficient permissions'},
                 status=status.HTTP_403_FORBIDDEN
@@ -88,11 +90,12 @@ def process_list_create(request):
 @permission_classes([IsAuthenticated])
 def process_detail(request, process_id):
     """Get, update, or delete a business process"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     process = get_object_or_404(
         BusinessProcess,
         id=process_id,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     if request.method == 'GET':
@@ -100,7 +103,7 @@ def process_detail(request, process_id):
         return Response(serializer.data)
     
     elif request.method in ['PUT', 'PATCH']:
-        if request.user.profile.role not in ['admin', 'analyst', 'manager']:
+        if profile.role not in ['admin', 'analyst', 'manager']:
             return Response(
                 {'error': 'Insufficient permissions'},
                 status=status.HTTP_403_FORBIDDEN
@@ -119,7 +122,7 @@ def process_detail(request, process_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
-        if request.user.profile.role != 'admin':
+        if profile.role != 'admin':
             return Response(
                 {'error': 'Admin permissions required'},
                 status=status.HTTP_403_FORBIDDEN
@@ -451,8 +454,9 @@ def _estimate_execution_time(scenario_type):
 @permission_classes([IsAuthenticated])
 def simulation_list_create(request):
     """List simulations or create new simulation"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
-    if not hasattr(request.user, 'profile') or not request.user.profile.organization:
+    if not hasattr(request.user, 'profile') or not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_400_BAD_REQUEST
@@ -460,7 +464,7 @@ def simulation_list_create(request):
     
     if request.method == 'GET':
         simulations = Simulation.objects.filter(
-            organization=request.user.profile.organization
+            organization= profile.organization
         )
         
         # Apply filters
@@ -483,7 +487,7 @@ def simulation_list_create(request):
         return Response(serializer.data)
     
     elif request.method == 'POST':
-        if not request.user.profile.can_create_simulations:
+        if not profile.can_create_simulations:
             return Response(
                 {'error': 'Insufficient permissions to create simulations'},
                 status=status.HTTP_403_FORBIDDEN
@@ -497,7 +501,7 @@ def simulation_list_create(request):
         if serializer.is_valid():
             # Verify vendor belongs to organization
             vendor = serializer.validated_data['target_vendor']
-            if vendor.organization != request.user.profile.organization:
+            if vendor.organization != profile.organization:
                 return Response(
                     {'error': 'Vendor does not belong to your organization'},
                     status=status.HTTP_403_FORBIDDEN
@@ -515,11 +519,12 @@ def simulation_list_create(request):
 @permission_classes([IsAuthenticated])
 def simulation_detail(request, simulation_id):
     """Get or delete a simulation"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     simulation = get_object_or_404(
         Simulation,
         id=simulation_id,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     if request.method == 'GET':
@@ -527,7 +532,7 @@ def simulation_detail(request, simulation_id):
         return Response(serializer.data)
     
     elif request.method == 'DELETE':
-        if request.user.profile.role != 'admin':
+        if profile.role != 'admin':
             return Response(
                 {'error': 'Admin permissions required'},
                 status=status.HTTP_403_FORBIDDEN
@@ -540,12 +545,13 @@ def simulation_detail(request, simulation_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def execute_simulation(request, simulation_id):
-    """Execute a simulation - THE MAGIC HAPPENS HERE! ✨"""
+    """Execute a simulation - THE MAGIC HAPPENS HERE! """
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     simulation = get_object_or_404(
         Simulation,
         id=simulation_id,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     # Check if already completed
@@ -594,6 +600,7 @@ def execute_simulation(request, simulation_id):
 @permission_classes([IsAuthenticated])
 def what_if_analysis(request):
     """Run what-if analysis with parameter variations"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     serializer = WhatIfAnalysisSerializer(data=request.data)
     
@@ -609,7 +616,7 @@ def what_if_analysis(request):
     base_simulation = get_object_or_404(
         Simulation,
         id=base_simulation_id,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     # Create new simulation with modified parameters
@@ -617,7 +624,7 @@ def what_if_analysis(request):
     new_params.update(parameter_changes)
     
     new_simulation = Simulation.objects.create(
-        organization=request.user.profile.organization,
+        organization= profile.organization,
         created_by=request.user,
         name=scenario_name,
         description=description or f"What-if analysis based on {base_simulation.name}",
@@ -643,6 +650,7 @@ def what_if_analysis(request):
 @permission_classes([IsAuthenticated])
 def compare_simulations(request):
     """Compare multiple simulations"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     serializer = SimulationComparisonRequestSerializer(data=request.data)
     
@@ -653,7 +661,7 @@ def compare_simulations(request):
     
     simulations = Simulation.objects.filter(
         id__in=simulation_ids,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     if simulations.count() != len(simulation_ids):
@@ -718,8 +726,9 @@ def compare_simulations(request):
 @permission_classes([IsAuthenticated])
 def simulation_summary(request):
     """Get simulation portfolio summary"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
-    org = request.user.profile.organization
+    org = profile.organization
     simulations = Simulation.objects.filter(organization=org)
     
     # Recent simulations
@@ -784,11 +793,12 @@ def simulation_summary(request):
 @permission_classes([IsAuthenticated])
 def result_detail(request, simulation_id):
     """Get simulation result"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     simulation = get_object_or_404(
         Simulation,
         id=simulation_id,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     if not hasattr(simulation, 'result'):
@@ -808,8 +818,9 @@ def result_detail(request, simulation_id):
 @permission_classes([IsAuthenticated])
 def batch_create_simulations(request):
     """Create multiple simulations at once"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
-    if not request.user.profile.can_create_simulations:
+    if not profile.can_create_simulations:
         return Response(
             {'error': 'Insufficient permissions'},
             status=status.HTTP_403_FORBIDDEN
@@ -829,7 +840,7 @@ def batch_create_simulations(request):
     # Verify vendors and template
     vendors = Vendor.objects.filter(
         id__in=vendor_ids,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     if vendors.count() != len(vendor_ids):
@@ -845,7 +856,7 @@ def batch_create_simulations(request):
     
     for vendor in vendors:
         simulation = Simulation.objects.create(
-            organization=request.user.profile.organization,
+            organization= profile.organization,
             created_by=request.user,
             name=f"{template.name} - {vendor.name}",
             description=f"Batch simulation for {vendor.name}",

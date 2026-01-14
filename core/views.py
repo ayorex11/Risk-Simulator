@@ -10,7 +10,7 @@ from .models import Organization, UserProfile
 from .serializers import (
     UserSerializer, UserListSerializer, UserProfileSerializer,
     OrganizationSerializer, OrganizationDetailSerializer,
-    OrganizationStatsSerializer, ChangePasswordSerializer
+    OrganizationStatsSerializer
 )
 
 User = get_user_model()
@@ -48,20 +48,21 @@ def update_current_user(request):
 @permission_classes([IsAuthenticated])
 def list_users(request):
     """List all users in current user's organization"""
-    if not hasattr(request.user, 'profile') or not request.user.profile.organization:
+    profile = get_object_or_404(UserProfile, user=request.user)
+    if not hasattr(request.user, 'profile') or not profile.organization:
         return Response(
             {'error': 'User must be associated with an organization'},
             status=status.HTTP_400_BAD_REQUEST
         )
     
     # Only admin and managers can list all users
-    if request.user.profile.role not in ['admin', 'manager']:
+    if profile.role not in ['admin', 'manager']:
         return Response(
             {'error': 'Insufficient permissions'},
             status=status.HTTP_403_FORBIDDEN
         )
     
-    organization = request.user.profile.organization
+    organization = profile.organization
     users = User.objects.filter(profile__organization=organization)
     
     # Apply filters
@@ -90,6 +91,7 @@ def list_users(request):
 @permission_classes([IsAuthenticated])
 def get_user_detail(request, user_id):
     """Get specific user details"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     if not hasattr(request.user, 'profile'):
         return Response(
             {'error': 'User profile not found'},
@@ -99,7 +101,7 @@ def get_user_detail(request, user_id):
     user = get_object_or_404(User, id=user_id)
     
     # Check if user can view this profile
-    if request.user.id != user.id and request.user.profile.role not in ['admin', 'manager']:
+    if request.user.id != user.id and profile.role not in ['admin', 'manager']:
         return Response(
             {'error': 'Insufficient permissions'},
             status=status.HTTP_403_FORBIDDEN
@@ -114,7 +116,8 @@ def get_user_detail(request, user_id):
 @permission_classes([IsAuthenticated])
 def update_user(request, user_id):
     """Update user (admin only)"""
-    if not hasattr(request.user, 'profile') or request.user.profile.role != 'admin':
+    profile = get_object_or_404(UserProfile, user=request.user)
+    if not hasattr(request.user, 'profile') or profile.role != 'admin':
         return Response(
             {'error': 'Admin permissions required'},
             status=status.HTTP_403_FORBIDDEN
@@ -140,10 +143,11 @@ def update_user(request, user_id):
 @permission_classes([IsAuthenticated])
 def update_user_profile(request, user_id):
     """Update user profile"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     user = get_object_or_404(User, id=user_id)
     
     # Can only update own profile or if admin
-    if request.user.id != user.id and request.user.profile.role != 'admin':
+    if request.user.id != user.id and profile.role != 'admin':
         return Response(
             {'error': 'Insufficient permissions'},
             status=status.HTTP_403_FORBIDDEN
@@ -172,13 +176,14 @@ def update_user_profile(request, user_id):
 @permission_classes([IsAuthenticated])
 def get_organization(request):
     """Get current user's organization"""
-    if not hasattr(request.user, 'profile') or not request.user.profile.organization:
+    profile = get_object_or_404(UserProfile, user=request.user)
+    if not hasattr(request.user, 'profile') or not profile.organization:
         return Response(
             {'error': 'User not associated with an organization'},
             status=status.HTTP_404_NOT_FOUND
         )
     
-    organization = request.user.profile.organization
+    organization = profile.organization
     serializer = OrganizationDetailSerializer(organization)
     return Response(serializer.data)
 
@@ -188,19 +193,20 @@ def get_organization(request):
 @permission_classes([IsAuthenticated])
 def update_organization(request):
     """Update organization (admin only)"""
-    if not hasattr(request.user, 'profile') or request.user.profile.role != 'admin':
+    profile = get_object_or_404(UserProfile, user=request.user)
+    if not hasattr(request.user, 'profile') or profile.role != 'admin':
         return Response(
             {'error': 'Admin permissions required'},
             status=status.HTTP_403_FORBIDDEN
         )
     
-    if not request.user.profile.organization:
+    if not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_404_NOT_FOUND
         )
     
-    organization = request.user.profile.organization
+    organization = profile.organization
     serializer = OrganizationSerializer(
         organization,
         data=request.data,
@@ -218,8 +224,9 @@ def update_organization(request):
 @permission_classes([IsAuthenticated])
 def create_organization(request):
     """Create new organization (for onboarding)"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     # Check if user already has organization
-    if hasattr(request.user, 'profile') and request.user.profile.organization:
+    if hasattr(request.user, 'profile') and profile.organization:
         return Response(
             {'error': 'User already associated with an organization'},
             status=status.HTTP_400_BAD_REQUEST
@@ -232,7 +239,7 @@ def create_organization(request):
         
         # Update or create user profile with this organization
         if hasattr(request.user, 'profile'):
-            profile = request.user.profile
+            profile = profile
             profile.organization = organization
             profile.role = 'admin'  # Creator becomes admin
             profile.save()
@@ -248,13 +255,14 @@ def create_organization(request):
 @permission_classes([IsAuthenticated])
 def get_organization_stats(request):
     """Get dashboard statistics for organization"""
-    if not hasattr(request.user, 'profile') or not request.user.profile.organization:
+    profile = get_object_or_404(UserProfile, user=request.user)
+    if not hasattr(request.user, 'profile') or not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_404_NOT_FOUND
         )
     
-    org = request.user.profile.organization
+    org = profile.organization
     
     # Import here to avoid circular imports
     from vendors.models import Vendor
@@ -305,13 +313,14 @@ def get_organization_stats(request):
 @permission_classes([IsAuthenticated])
 def get_dashboard_overview(request):
     """Get comprehensive dashboard overview"""
-    if not hasattr(request.user, 'profile') or not request.user.profile.organization:
+    profile = get_object_or_404(UserProfile, user=request.user)
+    if not hasattr(request.user, 'profile') or not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_404_NOT_FOUND
         )
     
-    org = request.user.profile.organization
+    org = profile.organization
     
     from vendors.models import Vendor, IncidentHistory
     from simulations.models import Simulation, SimulationResult
@@ -388,7 +397,7 @@ def get_user_permissions(request):
             }
         })
     
-    profile = request.user.profile
+    profile = get_object_or_404(UserProfile, user=request.user)
     role = profile.role
     
     permissions = {
@@ -406,41 +415,6 @@ def get_user_permissions(request):
     
     return Response(permissions)
 
-
-@swagger_auto_schema(methods=['POST'], request_body=ChangePasswordSerializer)
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def change_password(request):
-    """Change current user's password"""
-    serializer = ChangePasswordSerializer(data=request.data)
-    if not serializer.is_valid():
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-    old_password = serializer.validated_data.get('old_password')
-    new_password = serializer.validated_data.get('new_password')    
-    confirm_password = serializer.validated_data.get('confirm_new_password')
-    
-    if not all([old_password, new_password, confirm_password]):
-        return Response(
-            {'error': 'All password fields are required'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    
-    if new_password != confirm_password:
-        return Response(
-            {'error': 'New passwords do not match'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    
-    if not request.user.check_password(old_password):
-        return Response(
-            {'error': 'Old password is incorrect'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    
-    request.user.set_password(new_password)
-    request.user.save()
-    
-    return Response({'message': 'Password changed successfully'})
 
 
 

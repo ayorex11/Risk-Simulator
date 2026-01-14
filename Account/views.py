@@ -42,7 +42,7 @@ def register(request):
             'Verify Your Account',
             f"""
             Hello {user.email},
-            Welcome to Anchorless! Please verify your email address to complete your registration.
+            Welcome to Scenario Forge! Please verify your email address to complete your registration.
             Click the link to verify your account: {verification_url}
             Thank you for joining us!
             """,
@@ -352,23 +352,23 @@ def resend_verification_email(request):
         
         try:
             send_mail(
-                'Verify Your Account - Anchorless',
+                'Verify Your Account - Scenario Forge',
                 f"""
 Hello {user.first_name or user.email},
 
-Thank you for registering with Anchorless!
+Thank you for registering with Scenario Forge!
 
-Please verify your email address to complete your registration and start managing your debt freedom journey.
+Please verify your email address to complete your registration and start managing your risks today.
 
 Click the link below to verify your account:
 {verification_url}
 
 This link will expire in 24 hours.
 
-If you didn't create an account with Anchorless, please ignore this email.
+If you didn't create an account with Scenario Forge, please ignore this email.
 
 Best regards,
-The Anchorless Team
+The Scenario Forge Team
                 """,
                 settings.DEFAULT_FROM_EMAIL,
                 [user.email],

@@ -16,6 +16,7 @@ from .serializers import (
     ComplianceCertificationSerializer, CertificationStatusSerializer,
     VendorContactSerializer, CompareVendorsSerializer
 )
+from core.models import UserProfile
 from drf_yasg.utils import swagger_auto_schema
 
 
@@ -24,14 +25,15 @@ from drf_yasg.utils import swagger_auto_schema
 @permission_classes([IsAuthenticated])
 def vendor_list_create(request):
     """List all vendors or create new vendor"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
-    if not hasattr(request.user, 'profile') or not request.user.profile.organization:
+    if not hasattr(request.user, 'profile') or not profile.organization:
         return Response(
             {'error': 'User must be associated with an organization'},
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    organization = request.user.profile.organization
+    organization = profile.organization
     
     if request.method == 'GET':
         vendors = Vendor.objects.filter(organization=organization)
@@ -67,7 +69,7 @@ def vendor_list_create(request):
     
     elif request.method == 'POST':
         # Check permissions
-        if request.user.profile.role not in ['admin', 'analyst', 'manager']:
+        if profile.role not in ['admin', 'analyst', 'manager']:
             return Response(
                 {'error': 'Insufficient permissions to create vendors'},
                 status=status.HTTP_403_FORBIDDEN
@@ -92,8 +94,9 @@ def vendor_list_create(request):
 @permission_classes([IsAuthenticated])
 def vendor_detail(request, vendor_id):
     """Get, update, or delete a vendor"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
-    if not hasattr(request.user, 'profile') or not request.user.profile.organization:
+    if not hasattr(request.user, 'profile') or not profile.organization:
         return Response(
             {'error': 'User must be associated with an organization'},
             status=status.HTTP_400_BAD_REQUEST
@@ -102,7 +105,7 @@ def vendor_detail(request, vendor_id):
     vendor = get_object_or_404(
         Vendor,
         id=vendor_id,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     if request.method == 'GET':
@@ -111,7 +114,7 @@ def vendor_detail(request, vendor_id):
     
     elif request.method in ['PUT', 'PATCH']:
         # Check permissions
-        if request.user.profile.role not in ['admin', 'analyst', 'manager']:
+        if profile.role not in ['admin', 'analyst', 'manager']:
             return Response(
                 {'error': 'Insufficient permissions to update vendors'},
                 status=status.HTTP_403_FORBIDDEN
@@ -131,7 +134,7 @@ def vendor_detail(request, vendor_id):
     
     elif request.method == 'DELETE':
         # Only admins can delete
-        if request.user.profile.role != 'admin':
+        if profile.role != 'admin':
             return Response(
                 {'error': 'Admin permissions required to delete vendors'},
                 status=status.HTTP_403_FORBIDDEN
@@ -146,11 +149,12 @@ def vendor_detail(request, vendor_id):
 @permission_classes([IsAuthenticated])
 def recalculate_vendor_risk(request, vendor_id):
     """Manually recalculate vendor risk score"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     vendor = get_object_or_404(
         Vendor,
         id=vendor_id,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     new_score = vendor.calculate_risk_score()
@@ -168,11 +172,12 @@ def recalculate_vendor_risk(request, vendor_id):
 @permission_classes([IsAuthenticated])
 def vendor_risk_history(request, vendor_id):
     """Get risk score history from assessments"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     vendor = get_object_or_404(
         Vendor,
         id=vendor_id,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     from assessments.models import VendorAssessment
@@ -202,11 +207,12 @@ def vendor_risk_history(request, vendor_id):
 @permission_classes([IsAuthenticated])
 def vendor_dependencies(request, vendor_id):
     """Get vendor dependency graph"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     vendor = get_object_or_404(
         Vendor,
         id=vendor_id,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     # Get dependency chain
@@ -236,14 +242,15 @@ def vendor_dependencies(request, vendor_id):
 @permission_classes([IsAuthenticated])
 def vendor_summary(request):
     """Get vendor portfolio summary"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
-    if not hasattr(request.user, 'profile') or not request.user.profile.organization:
+    if not hasattr(request.user, 'profile') or not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_404_NOT_FOUND
         )
     
-    org = request.user.profile.organization
+    org = profile.organization
     vendors = Vendor.objects.filter(organization=org)
     
     # Calculate summary stats
@@ -288,6 +295,7 @@ def vendor_summary(request):
 @permission_classes([IsAuthenticated])
 def compare_vendors(request):
     """Compare multiple vendors"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     serializer = CompareVendorsSerializer(data=request.data)
     if not serializer.is_valid():
@@ -302,7 +310,7 @@ def compare_vendors(request):
     
     vendors = Vendor.objects.filter(
         id__in=vendor_ids,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     if vendors.count() != len(vendor_ids):
@@ -362,8 +370,9 @@ def compare_vendors(request):
 @permission_classes([IsAuthenticated])
 def incident_list_create(request):
     """List incidents or create new incident"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
-    if not hasattr(request.user, 'profile') or not request.user.profile.organization:
+    if not hasattr(request.user, 'profile') or not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_400_BAD_REQUEST
@@ -376,7 +385,7 @@ def incident_list_create(request):
         
         # Get all incidents for organization's vendors
         vendor_ids = Vendor.objects.filter(
-            organization=request.user.profile.organization
+            organization= profile.organization
         ).values_list('id', flat=True)
         
         incidents = IncidentHistory.objects.filter(vendor_id__in=vendor_ids)
@@ -401,7 +410,7 @@ def incident_list_create(request):
         if serializer.is_valid():
             # Verify vendor belongs to organization
             vendor = serializer.validated_data['vendor']
-            if vendor.organization != request.user.profile.organization:
+            if vendor.organization != profile.organization:
                 return Response(
                     {'error': 'Vendor does not belong to your organization'},
                     status=status.HTTP_403_FORBIDDEN
@@ -425,11 +434,12 @@ def incident_list_create(request):
 @permission_classes([IsAuthenticated])
 def incident_detail(request, incident_id):
     """Get, update, or delete an incident"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     incident = get_object_or_404(IncidentHistory, id=incident_id)
     
     # Verify vendor belongs to organization
-    if incident.vendor.organization != request.user.profile.organization:
+    if incident.vendor.organization != profile.organization:
         return Response(
             {'error': 'Not authorized'},
             status=status.HTTP_403_FORBIDDEN
@@ -452,7 +462,7 @@ def incident_detail(request, incident_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
-        if request.user.profile.role != 'admin':
+        if profile.role != 'admin':
             return Response(
                 {'error': 'Admin permissions required'},
                 status=status.HTTP_403_FORBIDDEN
@@ -466,8 +476,9 @@ def incident_detail(request, incident_id):
 @permission_classes([IsAuthenticated])
 def incident_trends(request):
     """Get incident trend analysis"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
-    org = request.user.profile.organization
+    org = profile.organization
     vendor_ids = Vendor.objects.filter(organization=org).values_list('id', flat=True)
     incidents = IncidentHistory.objects.filter(vendor_id__in=vendor_ids)
     
@@ -511,6 +522,7 @@ def incident_trends(request):
 @permission_classes([IsAuthenticated])
 def certification_list_create(request):
     """List certifications or create new certification"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     if request.method == 'GET':
         vendor_id = request.query_params.get('vendor_id')
@@ -518,7 +530,7 @@ def certification_list_create(request):
         is_active = request.query_params.get('is_active')
         
         vendor_ids = Vendor.objects.filter(
-            organization=request.user.profile.organization
+            organization= profile.organization
         ).values_list('id', flat=True)
         
         certifications = ComplianceCertification.objects.filter(vendor_id__in=vendor_ids)
@@ -540,7 +552,7 @@ def certification_list_create(request):
         
         if serializer.is_valid():
             vendor = serializer.validated_data['vendor']
-            if vendor.organization != request.user.profile.organization:
+            if vendor.organization != profile.organization:
                 return Response(
                     {'error': 'Vendor does not belong to your organization'},
                     status=status.HTTP_403_FORBIDDEN
@@ -564,11 +576,12 @@ def certification_list_create(request):
 @permission_classes([IsAuthenticated])
 def certification_expiring_soon(request):
     """Get certifications expiring within 90 days"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     ninety_days = timezone.now().date() + timedelta(days=90)
     
     vendor_ids = Vendor.objects.filter(
-        organization=request.user.profile.organization
+        organization= profile.organization
     ).values_list('id', flat=True)
     
     expiring = ComplianceCertification.objects.filter(
@@ -588,11 +601,12 @@ def certification_expiring_soon(request):
 @permission_classes([IsAuthenticated])
 def vendor_contact_list_create(request, vendor_id):
     """List or create vendor contacts"""
+    profile = get_object_or_404(UserProfile, user=request.user)
     
     vendor = get_object_or_404(
         Vendor,
         id=vendor_id,
-        organization=request.user.profile.organization
+        organization= profile.organization
     )
     
     if request.method == 'GET':

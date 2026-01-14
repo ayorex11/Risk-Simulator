@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Vendor, IncidentHistory, ComplianceCertification, VendorContact
 from decimal import Decimal
+from core.models import UserProfile
+from django.shortcuts import get_object_or_404
 
 
 class VendorContactSerializer(serializers.ModelSerializer):
@@ -157,13 +159,14 @@ class VendorCreateUpdateSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
+        profile = get_object_or_404(UserProfile, user=request.user)
         """Create vendor and calculate risk score"""
         dependent_vendors = validated_data.pop('dependent_vendors', [])
         
         # Set organization from request context
         request = self.context.get('request')
         if request and hasattr(request.user, 'profile'):
-            validated_data['organization'] = request.user.profile.organization
+            validated_data['organization'] = profile.organization
             validated_data['created_by'] = request.user
         
         vendor = Vendor.objects.create(**validated_data)
