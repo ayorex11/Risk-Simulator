@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Organization, UserProfile
+from .models import Organization, UserProfile, OrganizationRequest
 
 User = get_user_model()
 
@@ -120,3 +120,11 @@ class UpdateUserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['role', 'phone', 'department', 'job_title', 'preferences']
+
+class OrganizationRequestSerializer(serializers.ModelSerializer):
+    user = UserProfileSerializer(read_only=True)
+    organization = serializers.StringRelatedField()
+    """Serializer for viewing Requests to Join Organization"""
+    class Meta:
+        model = OrganizationRequest
+        fields = '__all__'

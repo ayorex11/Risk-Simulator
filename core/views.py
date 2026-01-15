@@ -6,12 +6,14 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Count, Avg, Q
 from django.contrib.auth import get_user_model
 
-from .models import Organization, UserProfile
+from .models import Organization, UserProfile, OrganizationRequest
 from .serializers import (
     UserSerializer, UserListSerializer, UserProfileSerializer,
     OrganizationSerializer, OrganizationDetailSerializer,
-    OrganizationStatsSerializer, UpdateUserProfileSerializer
+    OrganizationStatsSerializer, UpdateUserProfileSerializer,
+    OrganizationRequestSerializer 
 )
+
 
 User = get_user_model()
 from drf_yasg.utils import swagger_auto_schema
@@ -392,6 +394,59 @@ def get_user_permissions(request):
     
     return Response(permissions)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_request_to_organization(request, organization_id):
+    """Endpoint for users to send request to join their organization"""
+    profile = request.user.profile
+    organization = get_object_or_404(Organization, id=organization_id)
+    org_request = OrganizationRequest.objects.filter(user=profile, organization=organization)
+    if org_request:
+        return Response({'message': 'Request already sent. Wait for approval'}, status=status.HTTP_400_BAD_REQUEST)
+    elif profile.organization == organization:
+        return Response({'message': 'User already part of the organization'}, status=status.HTTP_400_BAD_REQUEST)
+    OrganizationRequest.objects.create(user=profile, organization=organization)
+    return Response({'message': 'request successfully sent'}, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_request_list(request):
+    """Endpoint for admins to see organization requests"""
+    profile = request.user.profile
+    organization = profile.organization
+    if not organization:
+        return Response({'message': 'You are not associated to any organization'}, status=status.HTTP_400_BAD_REQUEST)
+    role = profile.role
+    if role not in ['admin', 'manager']:
+        return Response({'message': 'Issuficient Permission'}, status=status.HTTP_400_BAD_REQUEST)
+    org_req = OrganizationRequest.objects.filter(organization=organization, approved=False)
+    serializer = OrganizationRequestSerializer(org_req, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def approve_request(request, request_id):
+    """Endpoint for admins to approve requests"""
+    profile = request.user.profile
+    organization = profile.organization
+    if not organization:
+        return Response({'message': 'You are not associated to any organization'}, status=status.HTTP_400_BAD_REQUEST)
+    org_req = get_object_or_404(OrganizationRequest, id=request_id)
+    if org_req.organization != organization:
+        return Response({'message': 'Issuficient Permission'}, status=status.HTTP_400_BAD_REQUEST)
+    role = profile.role
+    if role not in ['admin', 'manager']:
+        return Response({'message': 'Issuficient Permission'}, status=status.HTTP_400_BAD_REQUEST)
+    if org_req.approved == True:
+        return Response({'message' : 'request already approved'},status=status.HTTP_400_BAD_REQUEST)
+    org_req.approved = True
+    org_req.save()
+    org_req.user.organization = org_req.organization
+    org_req.user.save()
+
+    return Response({'message': 'Successfully approved'}, status=status.HTTP_200_OK)
+    
 
 
 

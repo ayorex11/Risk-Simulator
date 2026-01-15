@@ -16,4 +16,7 @@ urlpatterns = [
     path('organization/create/', views.create_organization, name='create-organization'),
     path('organization/stats/', views.get_organization_stats, name='organization-stats'),
     path('organization/dashboard/', views.get_dashboard_overview, name='dashboard-overview'),
+    path('organization/<uuid:organization_id>/request/', views.send_request_to_organization, name='organization-request'),
+    path('organization/request_list/', views.get_request_list, name='organization-request'),
+    path('organization/<uuid:request_id>/approve/', views.approve_request, name='approve-request'),
 ]

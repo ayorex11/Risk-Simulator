@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Organization, UserProfile
+from .models import Organization, UserProfile, OrganizationRequest
 
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
@@ -11,3 +11,5 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'organization', 'role', 'created_at']
     list_filter = ['role', 'organization']
     search_fields = ['user__email', 'user__first_name', 'user__last_name']
+
+admin.site.register(OrganizationRequest)

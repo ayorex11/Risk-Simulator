@@ -99,3 +99,23 @@ def manage_user_profile(sender, instance, created, **kwargs):
         profile = getattr(instance, 'profile', None)
         if profile:
             profile.save()
+
+class OrganizationRequest(models.Model):
+    """Model to manage requests to join an organization"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(UserProfile, 
+                             on_delete=models.CASCADE, 
+                             related_name='user_requests', 
+                             null=False, 
+                             blank=False)
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name='org_requests',
+        null=False,
+        blank=False
+    )
+    approved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.user.user.first_name} - {self.organization}'
