@@ -25,9 +25,9 @@ from drf_yasg.utils import swagger_auto_schema
 @permission_classes([IsAuthenticated])
 def vendor_list_create(request):
     """List all vendors or create new vendor"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
-    if not hasattr(request.user, 'profile') or not profile.organization:
+    if not profile.organization:
         return Response(
             {'error': 'User must be associated with an organization'},
             status=status.HTTP_400_BAD_REQUEST
@@ -94,9 +94,9 @@ def vendor_list_create(request):
 @permission_classes([IsAuthenticated])
 def vendor_detail(request, vendor_id):
     """Get, update, or delete a vendor"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
-    if not hasattr(request.user, 'profile') or not profile.organization:
+    if not profile.organization:
         return Response(
             {'error': 'User must be associated with an organization'},
             status=status.HTTP_400_BAD_REQUEST
@@ -149,7 +149,7 @@ def vendor_detail(request, vendor_id):
 @permission_classes([IsAuthenticated])
 def recalculate_vendor_risk(request, vendor_id):
     """Manually recalculate vendor risk score"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     vendor = get_object_or_404(
         Vendor,
@@ -172,7 +172,7 @@ def recalculate_vendor_risk(request, vendor_id):
 @permission_classes([IsAuthenticated])
 def vendor_risk_history(request, vendor_id):
     """Get risk score history from assessments"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     vendor = get_object_or_404(
         Vendor,
@@ -207,7 +207,7 @@ def vendor_risk_history(request, vendor_id):
 @permission_classes([IsAuthenticated])
 def vendor_dependencies(request, vendor_id):
     """Get vendor dependency graph"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     vendor = get_object_or_404(
         Vendor,
@@ -242,9 +242,9 @@ def vendor_dependencies(request, vendor_id):
 @permission_classes([IsAuthenticated])
 def vendor_summary(request):
     """Get vendor portfolio summary"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
-    if not hasattr(request.user, 'profile') or not profile.organization:
+    if not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_404_NOT_FOUND
@@ -295,7 +295,7 @@ def vendor_summary(request):
 @permission_classes([IsAuthenticated])
 def compare_vendors(request):
     """Compare multiple vendors"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     serializer = CompareVendorsSerializer(data=request.data)
     if not serializer.is_valid():
@@ -370,9 +370,9 @@ def compare_vendors(request):
 @permission_classes([IsAuthenticated])
 def incident_list_create(request):
     """List incidents or create new incident"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
-    if not hasattr(request.user, 'profile') or not profile.organization:
+    if not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_400_BAD_REQUEST
@@ -434,7 +434,7 @@ def incident_list_create(request):
 @permission_classes([IsAuthenticated])
 def incident_detail(request, incident_id):
     """Get, update, or delete an incident"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     incident = get_object_or_404(IncidentHistory, id=incident_id)
     
@@ -476,7 +476,7 @@ def incident_detail(request, incident_id):
 @permission_classes([IsAuthenticated])
 def incident_trends(request):
     """Get incident trend analysis"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     org = profile.organization
     vendor_ids = Vendor.objects.filter(organization=org).values_list('id', flat=True)
@@ -522,7 +522,7 @@ def incident_trends(request):
 @permission_classes([IsAuthenticated])
 def certification_list_create(request):
     """List certifications or create new certification"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     if request.method == 'GET':
         vendor_id = request.query_params.get('vendor_id')
@@ -576,7 +576,7 @@ def certification_list_create(request):
 @permission_classes([IsAuthenticated])
 def certification_expiring_soon(request):
     """Get certifications expiring within 90 days"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     ninety_days = timezone.now().date() + timedelta(days=90)
     
@@ -601,7 +601,7 @@ def certification_expiring_soon(request):
 @permission_classes([IsAuthenticated])
 def vendor_contact_list_create(request, vendor_id):
     """List or create vendor contacts"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     vendor = get_object_or_404(
         Vendor,

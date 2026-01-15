@@ -34,9 +34,9 @@ logger = logging.getLogger('simulations')
 @permission_classes([IsAuthenticated])
 def process_list_create(request):
     """List business processes or create new process"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
-    if not hasattr(request.user, 'profile') or not profile.organization:
+    if not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_400_BAD_REQUEST
@@ -90,7 +90,7 @@ def process_list_create(request):
 @permission_classes([IsAuthenticated])
 def process_detail(request, process_id):
     """Get, update, or delete a business process"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     process = get_object_or_404(
         BusinessProcess,
@@ -454,9 +454,9 @@ def _estimate_execution_time(scenario_type):
 @permission_classes([IsAuthenticated])
 def simulation_list_create(request):
     """List simulations or create new simulation"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
-    if not hasattr(request.user, 'profile') or not profile.organization:
+    if not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_400_BAD_REQUEST
@@ -519,7 +519,7 @@ def simulation_list_create(request):
 @permission_classes([IsAuthenticated])
 def simulation_detail(request, simulation_id):
     """Get or delete a simulation"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     simulation = get_object_or_404(
         Simulation,
@@ -546,7 +546,7 @@ def simulation_detail(request, simulation_id):
 @permission_classes([IsAuthenticated])
 def execute_simulation(request, simulation_id):
     """Execute a simulation - THE MAGIC HAPPENS HERE! """
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     simulation = get_object_or_404(
         Simulation,
@@ -600,7 +600,7 @@ def execute_simulation(request, simulation_id):
 @permission_classes([IsAuthenticated])
 def what_if_analysis(request):
     """Run what-if analysis with parameter variations"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     serializer = WhatIfAnalysisSerializer(data=request.data)
     
@@ -650,7 +650,7 @@ def what_if_analysis(request):
 @permission_classes([IsAuthenticated])
 def compare_simulations(request):
     """Compare multiple simulations"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     serializer = SimulationComparisonRequestSerializer(data=request.data)
     
@@ -726,7 +726,7 @@ def compare_simulations(request):
 @permission_classes([IsAuthenticated])
 def simulation_summary(request):
     """Get simulation portfolio summary"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     org = profile.organization
     simulations = Simulation.objects.filter(organization=org)
@@ -793,7 +793,7 @@ def simulation_summary(request):
 @permission_classes([IsAuthenticated])
 def result_detail(request, simulation_id):
     """Get simulation result"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     simulation = get_object_or_404(
         Simulation,
@@ -818,7 +818,7 @@ def result_detail(request, simulation_id):
 @permission_classes([IsAuthenticated])
 def batch_create_simulations(request):
     """Create multiple simulations at once"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     if not profile.can_create_simulations:
         return Response(

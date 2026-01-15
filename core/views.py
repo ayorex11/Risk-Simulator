@@ -48,8 +48,8 @@ def update_current_user(request):
 @permission_classes([IsAuthenticated])
 def list_users(request):
     """List all users in current user's organization"""
-    profile = get_object_or_404(UserProfile, user=request.user)
-    if not hasattr(request.user, 'profile') or not profile.organization:
+    profile = request.user.profile
+    if not profile.organization:
         return Response(
             {'error': 'User must be associated with an organization'},
             status=status.HTTP_400_BAD_REQUEST
@@ -91,12 +91,7 @@ def list_users(request):
 @permission_classes([IsAuthenticated])
 def get_user_detail(request, user_id):
     """Get specific user details"""
-    profile = get_object_or_404(UserProfile, user=request.user)
-    if not hasattr(request.user, 'profile'):
-        return Response(
-            {'error': 'User profile not found'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+    profile = request.user.profile
     
     user = get_object_or_404(User, id=user_id)
     
@@ -116,8 +111,8 @@ def get_user_detail(request, user_id):
 @permission_classes([IsAuthenticated])
 def update_user(request, user_id):
     """Update user (admin only)"""
-    profile = get_object_or_404(UserProfile, user=request.user)
-    if not hasattr(request.user, 'profile') or profile.role != 'admin':
+    profile = request.user.profile  
+    if profile.role != 'admin':
         return Response(
             {'error': 'Admin permissions required'},
             status=status.HTTP_403_FORBIDDEN
@@ -143,7 +138,7 @@ def update_user(request, user_id):
 @permission_classes([IsAuthenticated])
 def update_user_profile(request, user_id):
     """Update user profile"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     user = get_object_or_404(User, id=user_id)
     
     # Can only update own profile or if admin
@@ -176,8 +171,8 @@ def update_user_profile(request, user_id):
 @permission_classes([IsAuthenticated])
 def get_organization(request):
     """Get current user's organization"""
-    profile = get_object_or_404(UserProfile, user=request.user)
-    if not hasattr(request.user, 'profile') or not profile.organization:
+    profile = request.user.profile
+    if not profile.organization:
         return Response(
             {'error': 'User not associated with an organization'},
             status=status.HTTP_404_NOT_FOUND
@@ -193,8 +188,8 @@ def get_organization(request):
 @permission_classes([IsAuthenticated])
 def update_organization(request):
     """Update organization (admin only)"""
-    profile = get_object_or_404(UserProfile, user=request.user)
-    if not hasattr(request.user, 'profile') or profile.role != 'admin':
+    profile = request.user.profile
+    if profile.role != 'admin':
         return Response(
             {'error': 'Admin permissions required'},
             status=status.HTTP_403_FORBIDDEN
@@ -224,9 +219,9 @@ def update_organization(request):
 @permission_classes([IsAuthenticated])
 def create_organization(request):
     """Create new organization (for onboarding)"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     # Check if user already has organization
-    if hasattr(request.user, 'profile') and profile.organization:
+    if profile.organization:
         return Response(
             {'error': 'User already associated with an organization'},
             status=status.HTTP_400_BAD_REQUEST
@@ -238,11 +233,10 @@ def create_organization(request):
         organization = serializer.save()
         
         # Update or create user profile with this organization
-        if hasattr(request.user, 'profile'):
-            profile = profile
-            profile.organization = organization
-            profile.role = 'admin'  # Creator becomes admin
-            profile.save()
+        
+        profile.organization = organization
+        profile.role = 'admin'  # Creator becomes admin
+        profile.save()
         
         return Response(
             OrganizationDetailSerializer(organization).data,
@@ -255,8 +249,8 @@ def create_organization(request):
 @permission_classes([IsAuthenticated])
 def get_organization_stats(request):
     """Get dashboard statistics for organization"""
-    profile = get_object_or_404(UserProfile, user=request.user)
-    if not hasattr(request.user, 'profile') or not profile.organization:
+    profile = request.user.profile
+    if not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_404_NOT_FOUND
@@ -313,8 +307,8 @@ def get_organization_stats(request):
 @permission_classes([IsAuthenticated])
 def get_dashboard_overview(request):
     """Get comprehensive dashboard overview"""
-    profile = get_object_or_404(UserProfile, user=request.user)
-    if not hasattr(request.user, 'profile') or not profile.organization:
+    profile = request.user.profile
+    if not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_404_NOT_FOUND
@@ -384,20 +378,7 @@ def get_dashboard_overview(request):
 @permission_classes([IsAuthenticated])
 def get_user_permissions(request):
     """Get current user's permissions and role"""
-    if not hasattr(request.user, 'profile'):
-        return Response({
-            'role': None,
-            'organization': None,
-            'permissions': {
-                'can_create_vendors': False,
-                'can_delete_vendors': False,
-                'can_create_simulations': False,
-                'can_manage_users': False,
-                'can_approve_assessments': False,
-            }
-        })
-    
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     role = profile.role
     
     permissions = {

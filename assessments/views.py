@@ -26,9 +26,8 @@ from drf_yasg.utils import swagger_auto_schema
 @permission_classes([IsAuthenticated])
 def assessment_list_create(request):
     """List assessments or create new assessment"""
-    profile = get_object_or_404(UserProfile, user=request.user)
-    
-    if not hasattr(request.user, 'profile') or not profile.organization:
+    profile = request.user.profile 
+    if not profile.organization:
         return Response(
             {'error': 'Organization not found'},
             status=status.HTTP_400_BAD_REQUEST
@@ -96,7 +95,7 @@ def assessment_list_create(request):
 @permission_classes([IsAuthenticated])
 def assessment_detail(request, assessment_id):
     """Get, update, or delete an assessment"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     assessment = get_object_or_404(VendorAssessment, id=assessment_id)
     
     # Verify vendor belongs to organization
@@ -153,7 +152,7 @@ def assessment_detail(request, assessment_id):
 @permission_classes([IsAuthenticated])
 def approve_assessment(request, assessment_id):
     """Approve an assessment"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     if profile.role not in ['admin', 'manager']:
         return Response(
@@ -190,7 +189,7 @@ def approve_assessment(request, assessment_id):
 @permission_classes([IsAuthenticated])
 def compare_assessments(request, assessment_id):
     """Compare assessment with previous assessment for same vendor"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     current = get_object_or_404(VendorAssessment, id=assessment_id)
     
     if current.vendor.organization != profile.organization:
@@ -262,7 +261,7 @@ def compare_assessments(request, assessment_id):
 @permission_classes([IsAuthenticated])
 def assessment_summary(request):
     """Get assessment portfolio summary"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     org = profile.organization
     vendor_ids = Vendor.objects.filter(organization=org).values_list('id', flat=True)
@@ -316,7 +315,7 @@ def assessment_summary(request):
 @permission_classes([IsAuthenticated])
 def question_list_create(request):
     """List questions or create new question (admin only)"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     if request.method == 'GET':
         questions = AssessmentQuestion.objects.filter(is_active=True)
@@ -441,7 +440,7 @@ def template_detail(request, template_id):
 @permission_classes([IsAuthenticated])
 def evidence_list_create(request, assessment_id):
     """List or upload evidence for assessment"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     assessment = get_object_or_404(VendorAssessment, id=assessment_id)
     
@@ -475,7 +474,7 @@ def evidence_list_create(request, assessment_id):
 @permission_classes([IsAuthenticated])
 def evidence_delete(request, evidence_id):
     """Delete evidence"""
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = request.user.profile
     
     evidence = get_object_or_404(AssessmentEvidence, id=evidence_id)
     

@@ -11,7 +11,6 @@ urlpatterns = [
     path('users/<uuid:user_id>/update/', views.update_user, name='update-user'),
     path('users/<uuid:user_id>/profile/', views.update_user_profile, name='update-profile'),
     path('users/permissions/', views.get_user_permissions, name='user-permissions'),
-    path('users/change-password/', views.change_password, name='change-password'),
     path('organization/', views.get_organization, name='organization'),
     path('organization/update/', views.update_organization, name='update-organization'),
     path('organization/create/', views.create_organization, name='create-organization'),

@@ -37,27 +37,9 @@ class UserSerializer(serializers.ModelSerializer):
             # Write-only fields for profile creation
             'organization_id', 'role', 'phone'
         ]
-        read_only_fields = ['id', 'is_verified', 'created_at']
+        read_only_fields = ['id', 'is_verified', 'created_at', 'email']
     
-    def create(self, validated_data):
-        """Create user and associated profile"""
-        organization_id = validated_data.pop('organization_id', None)
-        role = validated_data.pop('role', 'viewer')
-        phone = validated_data.pop('phone', '')
-        
-        user = User.objects.create(**validated_data)
-        
-        # Update or create profile
-        if hasattr(user, 'profile'):
-            profile = user.profile
-            if organization_id:
-                profile.organization_id = organization_id
-            profile.role = role
-            profile.phone = phone
-            profile.save()
-        
-        return user
-    
+
     def update(self, instance, validated_data):
         """Update user and profile"""
         organization_id = validated_data.pop('organization_id', None)
@@ -70,15 +52,15 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         
         # Update profile
-        if hasattr(instance, 'profile'):
-            profile = instance.profile
-            if organization_id is not None:
-                profile.organization_id = organization_id
-            if role is not None:
-                profile.role = role
-            if phone is not None:
-                profile.phone = phone
-            profile.save()
+        
+        profile = instance.get_or_create_profile()
+        if organization_id is not None:
+            profile.organization_id = organization_id
+        if role is not None:
+            profile.role = role
+        if phone is not None:
+            profile.phone = phone
+        profile.save()
         
         return instance
 

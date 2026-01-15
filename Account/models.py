@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 import uuid
+from django.apps import apps
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -46,6 +47,20 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+    
+    @property
+    def profile_safe(self):
+        try:
+            return self.profile
+        except AttributeError:
+            return None
+        except Exception:
+            return None
+        
+    def get_or_create_profile(self):
+        ProfileModel = apps.get_model('core', 'UserProfile')
+        profile, created = ProfileModel.objects.get_or_create(user=self)
+        return profile
 
 class VerificationToken(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

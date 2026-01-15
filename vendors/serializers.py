@@ -159,7 +159,7 @@ class VendorCreateUpdateSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
-        profile = get_object_or_404(UserProfile, user=request.user)
+        profile = request.user.profile
         """Create vendor and calculate risk score"""
         dependent_vendors = validated_data.pop('dependent_vendors', [])
         

@@ -108,3 +108,211 @@ INFO 2026-01-13 19:34:55,615 basehttp "GET /static/drf-yasg/swagger-ui-dist/favi
 INFO 2026-01-13 22:59:34,452 autoreload Watching for file changes with StatReloader
 INFO 2026-01-13 22:59:41,888 basehttp "GET / HTTP/1.1" 200 1662
 INFO 2026-01-13 22:59:42,598 basehttp "GET /?format=openapi HTTP/1.1" 200 27867
+INFO 2026-01-15 09:07:03,002 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 09:07:28,032 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\urls.py changed, reloading.
+INFO 2026-01-15 09:07:29,566 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 09:08:27,438 basehttp "GET / HTTP/1.1" 200 1662
+INFO 2026-01-15 09:08:27,715 basehttp "GET /static/drf-yasg/style.css HTTP/1.1" 200 1047
+INFO 2026-01-15 09:08:27,779 basehttp "GET /static/drf-yasg/swagger-ui-dist/swagger-ui.css HTTP/1.1" 200 145206
+INFO 2026-01-15 09:08:27,889 basehttp "GET /static/drf-yasg/swagger-ui-dist/swagger-ui-bundle.js HTTP/1.1" 200 1046583
+INFO 2026-01-15 09:08:27,959 basehttp "GET /static/drf-yasg/insQ.min.js HTTP/1.1" 200 2093
+INFO 2026-01-15 09:08:28,109 basehttp "GET /static/drf-yasg/immutable.min.js HTTP/1.1" 200 56904
+INFO 2026-01-15 09:08:28,142 basehttp "GET /static/drf-yasg/swagger-ui-dist/swagger-ui-standalone-preset.js HTTP/1.1" 200 322863
+INFO 2026-01-15 09:08:28,214 basehttp "GET /static/drf-yasg/swagger-ui-init.js HTTP/1.1" 200 15480
+INFO 2026-01-15 09:08:28,620 basehttp "GET /static/drf-yasg/swagger-ui-dist/favicon-32x32.png HTTP/1.1" 200 628
+INFO 2026-01-15 09:08:28,813 basehttp "GET /?format=openapi HTTP/1.1" 200 51877
+INFO 2026-01-15 10:09:25,884 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:09:41,174 basehttp "GET / HTTP/1.1" 200 1662
+INFO 2026-01-15 10:09:41,641 basehttp "GET /?format=openapi HTTP/1.1" 200 51877
+INFO 2026-01-15 10:20:04,854 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:20:06,612 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:20:09,867 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:20:11,274 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:20:21,891 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:20:23,761 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:20:27,485 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:20:29,800 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:20:36,431 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:20:37,923 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:25:10,107 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:25:12,314 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:25:15,193 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:25:16,906 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:25:19,395 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:25:21,244 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:25:29,396 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:25:31,364 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:25:39,576 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:25:41,060 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:25:49,317 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:25:51,193 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:25:53,599 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:25:54,691 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:25:59,643 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:26:01,975 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:26:05,272 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:26:07,277 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:26:10,553 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:26:12,355 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:26:16,520 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:26:17,718 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:26:22,734 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:26:24,913 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:26:32,089 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:26:34,174 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:26:38,559 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:26:40,642 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:26:48,019 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:26:49,708 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:26:55,426 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:26:57,109 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:27:35,918 autoreload C:\Users\Admin\Desktop\Risk Simulator\Account\models.py changed, reloading.
+INFO 2026-01-15 10:27:37,420 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:31:24,582 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\models.py changed, reloading.
+INFO 2026-01-15 10:31:27,024 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:31:29,204 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\models.py changed, reloading.
+INFO 2026-01-15 10:31:31,430 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:31:41,855 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\models.py changed, reloading.
+INFO 2026-01-15 10:31:43,957 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:31:47,210 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\models.py changed, reloading.
+INFO 2026-01-15 10:31:49,499 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:31:51,634 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\models.py changed, reloading.
+INFO 2026-01-15 10:31:53,408 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:31:56,085 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\models.py changed, reloading.
+INFO 2026-01-15 10:31:57,361 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:34:55,602 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:34:57,435 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:35:00,553 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:35:02,608 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:35:06,881 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:35:08,998 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:35:21,015 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:35:23,211 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:35:27,920 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:35:30,133 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:44:51,718 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:44:53,449 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:45:04,116 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:45:05,583 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:45:16,989 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:45:18,405 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:49:02,427 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:49:03,859 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:49:09,183 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:49:11,571 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:49:13,798 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:49:15,433 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:49:18,618 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:49:20,271 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:49:29,053 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\serializers.py changed, reloading.
+INFO 2026-01-15 10:49:30,325 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:53:07,599 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 10:53:09,059 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:53:13,233 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 10:53:15,986 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:53:19,599 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 10:53:20,985 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:54:56,725 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 10:54:58,404 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 10:55:35,599 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 10:55:37,320 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:01:31,795 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:01:33,217 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:01:47,276 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:01:49,027 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:02:01,640 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:02:03,059 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:02:05,625 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:02:09,434 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:02:14,330 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:02:15,573 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:02:36,742 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:02:38,201 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:06:30,414 autoreload C:\Users\Admin\Desktop\Risk Simulator\assessments\views.py changed, reloading.
+INFO 2026-01-15 11:06:32,055 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:06:37,782 autoreload C:\Users\Admin\Desktop\Risk Simulator\assessments\views.py changed, reloading.
+INFO 2026-01-15 11:06:42,112 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:06:50,199 autoreload C:\Users\Admin\Desktop\Risk Simulator\assessments\views.py changed, reloading.
+INFO 2026-01-15 11:06:51,549 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:07:41,530 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:07:44,950 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:07:51,984 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:07:53,215 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:09:03,379 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:09:04,728 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:09:06,980 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:09:09,628 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:09:13,572 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:09:14,816 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:10:16,472 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:10:18,335 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:10:29,661 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:10:31,278 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:10:40,697 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:10:42,291 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:11:05,655 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:11:07,664 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:11:12,699 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:11:14,077 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:11:24,798 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:11:27,063 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:11:30,295 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:11:31,841 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:11:44,619 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:11:46,907 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:11:56,482 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:11:59,265 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:12:02,538 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:12:04,175 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:12:11,378 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:12:12,937 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:12:16,926 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:12:19,087 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:12:30,251 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:12:32,105 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:12:59,234 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:13:00,744 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:13:13,525 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:13:15,952 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:13:23,318 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:13:24,772 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:14:05,236 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:14:07,623 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:14:30,239 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\views.py changed, reloading.
+INFO 2026-01-15 11:14:32,096 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:14:38,358 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\views.py changed, reloading.
+INFO 2026-01-15 11:14:39,698 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:14:51,653 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\views.py changed, reloading.
+INFO 2026-01-15 11:14:54,161 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:15:39,574 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\views.py changed, reloading.
+INFO 2026-01-15 11:15:41,622 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:17:11,038 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:17:12,456 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:17:21,725 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:17:24,188 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:17:27,926 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-15 11:17:29,698 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:18:15,311 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\views.py changed, reloading.
+INFO 2026-01-15 11:18:16,738 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:19:00,741 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-15 11:19:02,659 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:19:09,674 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-15 11:19:10,951 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:19:22,846 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-15 11:19:24,839 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:19:33,253 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-15 11:19:34,648 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:20:52,963 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:20:55,234 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:21:11,753 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:21:13,263 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:21:21,733 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:21:23,729 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:21:26,165 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:21:27,982 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:22:13,686 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:22:15,375 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:22:26,560 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:22:28,383 autoreload Watching for file changes with StatReloader
+INFO 2026-01-15 11:23:54,686 autoreload C:\Users\Admin\Desktop\Risk Simulator\core\views.py changed, reloading.
+INFO 2026-01-15 11:23:56,282 autoreload Watching for file changes with StatReloader

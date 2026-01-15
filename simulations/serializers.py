@@ -37,10 +37,11 @@ class BusinessProcessSerializer(serializers.ModelSerializer):
         return None
     
     def create(self, validated_data):
-        profile = get_object_or_404(UserProfile, user=request.user)
+        
         """Set organization from request context"""
         request = self.context.get('request')
-        if request and hasattr(request.user, 'profile'):
+        profile = request.user.profile
+        if request and profile:
             validated_data['organization'] = profile.organization
         return super().create(validated_data)
 
@@ -223,12 +224,13 @@ class SimulationCreateSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
-        profile = get_object_or_404(UserProfile, user=request.user)
+        
         """Create simulation with organization context"""
         request = self.context.get('request')
-        if request:
-            if hasattr(request.user, 'profile'):
-                validated_data['organization'] = profile.organization
+        profile = request.user.profile
+        if request and profile:
+            
+            validated_data['organization'] = profile.organization
             validated_data['created_by'] = request.user
         
         return Simulation.objects.create(**validated_data)
