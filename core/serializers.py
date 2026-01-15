@@ -19,7 +19,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'organization', 'organization_name', 'role', 'phone', 'department',
             'job_title', 'preferences', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'user', 'phone']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -37,7 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
             # Write-only fields for profile creation
             'organization_id', 'role', 'phone'
         ]
-        read_only_fields = ['id', 'is_verified', 'created_at', 'email']
+        read_only_fields = ['id', 'is_verified', 'created_at', 'email', 'is_active',]
     
 
     def update(self, instance, validated_data):
@@ -115,3 +115,8 @@ class OrganizationStatsSerializer(serializers.Serializer):
     recent_assessments = serializers.IntegerField()
     expiring_certifications = serializers.IntegerField()
 
+class UpdateUserProfileSerializer(serializers.ModelSerializer):
+    """Serializer for updating user profile"""
+    class Meta:
+        model = UserProfile
+        fields = ['role', 'phone', 'department', 'job_title', 'preferences']

@@ -10,7 +10,7 @@ from .models import Organization, UserProfile
 from .serializers import (
     UserSerializer, UserListSerializer, UserProfileSerializer,
     OrganizationSerializer, OrganizationDetailSerializer,
-    OrganizationStatsSerializer
+    OrganizationStatsSerializer, UpdateUserProfileSerializer
 )
 
 User = get_user_model()
@@ -26,17 +26,13 @@ def get_current_user(request):
     return Response(serializer.data)
 
 
-@swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=UserSerializer)
+@swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=UpdateUserProfileSerializer)
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def update_current_user(request):
     """Update current user profile"""
-    serializer = UserSerializer(
-        request.user,
-        data=request.data,
-        partial=request.method == 'PATCH',
-        context={'request': request}
-    )
+    profile = request.user.profile
+    serializer = UpdateUserProfileSerializer(profile, data=request.data, partial=request.method == 'PATCH')
     
     if serializer.is_valid():
         serializer.save()
