@@ -1002,3 +1002,315 @@ INFO 2026-01-15 20:17:13,847 basehttp "GET /core/organization/request_list/ HTTP
 INFO 2026-01-15 20:17:24,386 basehttp "GET /core/organization/ HTTP/1.1" 200 385
 INFO 2026-01-15 20:17:32,752 basehttp "GET /core/users/permissions/ HTTP/1.1" 200 470
 INFO 2026-01-15 20:17:55,729 basehttp "GET /core/users/me/ HTTP/1.1" 200 609
+INFO 2026-01-16 14:51:56,541 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 14:52:45,412 basehttp "GET / HTTP/1.1" 200 1662
+INFO 2026-01-16 14:52:45,581 basehttp "GET /static/drf-yasg/style.css HTTP/1.1" 200 1047
+INFO 2026-01-16 14:52:45,700 basehttp "GET /static/drf-yasg/swagger-ui-dist/swagger-ui.css HTTP/1.1" 200 145206
+INFO 2026-01-16 14:52:45,757 basehttp "GET /static/drf-yasg/insQ.min.js HTTP/1.1" 200 2093
+INFO 2026-01-16 14:52:45,770 basehttp "GET /static/drf-yasg/swagger-ui-dist/swagger-ui-bundle.js HTTP/1.1" 200 1046583
+INFO 2026-01-16 14:52:45,911 basehttp "GET /static/drf-yasg/immutable.min.js HTTP/1.1" 200 56904
+INFO 2026-01-16 14:52:45,917 basehttp "GET /static/drf-yasg/swagger-ui-init.js HTTP/1.1" 200 15480
+INFO 2026-01-16 14:52:46,074 basehttp "GET /static/drf-yasg/swagger-ui-dist/swagger-ui-standalone-preset.js HTTP/1.1" 200 322863
+INFO 2026-01-16 14:52:46,388 basehttp "GET /static/drf-yasg/swagger-ui-dist/favicon-32x32.png HTTP/1.1" 200 628
+INFO 2026-01-16 14:52:46,618 basehttp "GET /?format=openapi HTTP/1.1" 200 53340
+INFO 2026-01-16 14:52:48,570 basehttp "GET / HTTP/1.1" 200 1662
+INFO 2026-01-16 14:52:49,116 basehttp "GET /?format=openapi HTTP/1.1" 200 53340
+INFO 2026-01-16 14:52:50,758 basehttp "GET /admin HTTP/1.1" 301 0
+INFO 2026-01-16 14:52:50,872 basehttp "GET /admin/ HTTP/1.1" 302 0
+INFO 2026-01-16 14:52:51,001 basehttp "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4155
+INFO 2026-01-16 14:52:51,043 basehttp "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2682
+INFO 2026-01-16 14:52:51,046 basehttp "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+INFO 2026-01-16 14:52:51,048 basehttp "GET /static/admin/css/login.css HTTP/1.1" 200 958
+INFO 2026-01-16 14:52:51,071 basehttp "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+INFO 2026-01-16 14:52:51,072 basehttp "GET /static/admin/css/responsive.css HTTP/1.1" 200 17905
+INFO 2026-01-16 14:52:51,074 basehttp "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+INFO 2026-01-16 14:52:51,077 basehttp "GET /static/admin/css/base.css HTTP/1.1" 200 21544
+WARNING 2026-01-16 14:52:51,216 log Not Found: /favicon.ico
+WARNING 2026-01-16 14:52:51,235 basehttp "GET /favicon.ico HTTP/1.1" 404 3307
+INFO 2026-01-16 14:53:26,895 basehttp "POST /admin/login/?next=/admin/ HTTP/1.1" 200 4325
+INFO 2026-01-16 14:53:44,110 basehttp "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+INFO 2026-01-16 14:53:44,197 basehttp "GET /admin/ HTTP/1.1" 200 15964
+INFO 2026-01-16 14:53:44,249 basehttp "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+INFO 2026-01-16 14:53:44,282 basehttp "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+INFO 2026-01-16 14:53:44,316 basehttp "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+INFO 2026-01-16 14:54:37,864 basehttp "GET /admin/assessments/assessmenttemplate/ HTTP/1.1" 200 15482
+INFO 2026-01-16 14:54:37,913 basehttp "GET /static/admin/css/changelists.css HTTP/1.1" 200 6811
+INFO 2026-01-16 14:54:37,926 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-01-16 14:54:37,955 basehttp "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+INFO 2026-01-16 14:54:37,972 basehttp "GET /static/admin/js/actions.js HTTP/1.1" 200 8067
+INFO 2026-01-16 14:54:37,978 basehttp "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+INFO 2026-01-16 14:54:38,034 basehttp "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+INFO 2026-01-16 14:54:38,042 basehttp "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9042
+INFO 2026-01-16 14:54:38,045 basehttp "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+INFO 2026-01-16 14:54:38,067 basehttp "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+INFO 2026-01-16 14:54:38,104 basehttp "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+INFO 2026-01-16 14:54:38,304 basehttp "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+INFO 2026-01-16 14:54:38,344 basehttp "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+INFO 2026-01-16 14:54:38,344 basehttp "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+INFO 2026-01-16 14:58:15,630 autoreload C:\Users\Admin\Desktop\Risk Simulator\assessments\views.py changed, reloading.
+INFO 2026-01-16 14:58:17,265 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 14:58:51,492 autoreload C:\Users\Admin\Desktop\Risk Simulator\assessments\views.py changed, reloading.
+INFO 2026-01-16 14:58:53,536 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 14:59:00,617 autoreload C:\Users\Admin\Desktop\Risk Simulator\assessments\views.py changed, reloading.
+INFO 2026-01-16 14:59:04,542 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 14:59:08,138 autoreload C:\Users\Admin\Desktop\Risk Simulator\assessments\views.py changed, reloading.
+INFO 2026-01-16 14:59:11,684 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 14:59:16,834 autoreload C:\Users\Admin\Desktop\Risk Simulator\assessments\views.py changed, reloading.
+INFO 2026-01-16 14:59:18,806 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:00:17,870 autoreload C:\Users\Admin\Desktop\Risk Simulator\assessments\views.py changed, reloading.
+INFO 2026-01-16 15:00:19,768 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:02:54,047 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:02:55,709 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:03:32,081 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:03:34,559 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:03:38,869 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:03:42,436 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:03:48,972 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:03:50,970 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:04:49,365 basehttp "GET /admin/Account/customuser/ HTTP/1.1" 200 19061
+INFO 2026-01-16 15:04:49,416 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-01-16 15:04:49,580 basehttp "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+INFO 2026-01-16 15:04:49,593 basehttp "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+INFO 2026-01-16 15:04:49,600 basehttp "GET /static/admin/img/icon-no.svg HTTP/1.1" 200 560
+INFO 2026-01-16 15:05:40,260 basehttp "POST /auth/login/ HTTP/1.1" 200 742
+INFO 2026-01-16 15:06:20,975 basehttp "GET /assessments/ HTTP/1.1" 200 2
+INFO 2026-01-16 15:12:40,743 basehttp "GET / HTTP/1.1" 200 1662
+INFO 2026-01-16 15:12:41,318 basehttp "GET /?format=openapi HTTP/1.1" 200 55472
+INFO 2026-01-16 15:12:56,319 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:12:58,136 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:13:23,570 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:13:25,264 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:13:29,863 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:13:31,675 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:13:38,788 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:13:40,594 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:13:52,410 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:13:54,298 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:16:55,263 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:16:57,377 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:17:21,235 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:17:23,230 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:17:31,696 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:17:33,128 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:17:37,118 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py changed, reloading.
+INFO 2026-01-16 15:17:38,782 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:24:19,382 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:24:26,933 basehttp "GET / HTTP/1.1" 200 1662
+INFO 2026-01-16 15:24:27,499 basehttp "GET /?format=openapi HTTP/1.1" 200 86805
+ERROR 2026-01-16 15:30:50,137 log Internal Server Error: /vendors/
+Traceback (most recent call last):
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\vendors\views.py", line 86, in vendor_list_create
+    vendor = serializer.save()
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\serializers.py", line 212, in save
+    self.instance = self.create(validated_data)
+  File "C:\Users\Admin\Desktop\Risk Simulator\vendors\serializers.py", line 162, in create
+    profile = request.user.profile
+UnboundLocalError: local variable 'request' referenced before assignment
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\settings.py", line 177, in import_from_string
+    return import_string(val)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\utils\module_loading.py", line 30, in import_string
+    return cached_import(module_path, class_name)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\utils\module_loading.py", line 15, in cached_import
+    module = import_module(module_path)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1004, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'core.exceptions'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 463, in handle_exception
+    exception_handler = self.get_exception_handler()
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 298, in get_exception_handler
+    return self.settings.EXCEPTION_HANDLER
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\settings.py", line 225, in __getattr__
+    val = perform_import(val, attr)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\settings.py", line 166, in perform_import
+    return import_from_string(val, setting_name)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\settings.py", line 180, in import_from_string
+    raise ImportError(msg)
+ImportError: Could not import 'core.exceptions.custom_exception_handler' for API setting 'EXCEPTION_HANDLER'. ModuleNotFoundError: No module named 'core.exceptions'.
+ERROR 2026-01-16 15:30:50,156 basehttp "POST /vendors/ HTTP/1.1" 500 25482
+INFO 2026-01-16 15:33:27,344 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\serializers.py changed, reloading.
+INFO 2026-01-16 15:33:29,817 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:33:38,652 autoreload C:\Users\Admin\Desktop\Risk Simulator\vendors\serializers.py changed, reloading.
+INFO 2026-01-16 15:33:40,447 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:34:06,005 basehttp "POST /vendors/ HTTP/1.1" 201 1071
+INFO 2026-01-16 15:36:30,705 basehttp "GET /vendors/ HTTP/1.1" 200 365
+INFO 2026-01-16 15:39:59,837 basehttp "GET /vendors/certifications/ HTTP/1.1" 200 2
+WARNING 2026-01-16 15:40:41,397 log Bad Request: /vendors/compare/
+WARNING 2026-01-16 15:40:41,398 basehttp "POST /vendors/compare/ HTTP/1.1" 400 54
+INFO 2026-01-16 15:40:59,551 basehttp "GET /vendors/9a4ac9d8-d3e8-401e-8008-0bd3a87dc722/contacts/ HTTP/1.1" 200 2
+INFO 2026-01-16 15:43:52,882 basehttp "GET /admin/vendors/vendor/ HTTP/1.1" 200 18807
+INFO 2026-01-16 15:43:52,923 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-01-16 15:43:53,138 basehttp "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+INFO 2026-01-16 15:51:38,954 basehttp "GET /simulations/scenarios/ HTTP/1.1" 200 2
+INFO 2026-01-16 15:54:52,727 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\views.py changed, reloading.
+INFO 2026-01-16 15:54:56,040 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:55:01,418 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\views.py changed, reloading.
+INFO 2026-01-16 15:55:03,831 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:55:18,688 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\views.py changed, reloading.
+INFO 2026-01-16 15:55:20,723 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:55:23,283 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\views.py changed, reloading.
+INFO 2026-01-16 15:55:24,968 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:55:50,327 autoreload C:\Users\Admin\Desktop\Risk Simulator\simulations\serializers.py changed, reloading.
+INFO 2026-01-16 15:55:52,178 autoreload Watching for file changes with StatReloader
+INFO 2026-01-16 15:56:05,082 basehttp "GET / HTTP/1.1" 200 1662
+INFO 2026-01-16 15:56:05,672 basehttp "GET /?format=openapi HTTP/1.1" 200 86487
+INFO 2026-01-16 16:00:06,931 basehttp "GET /admin/simulations/scenariotemplate/ HTTP/1.1" 200 15653
+INFO 2026-01-16 16:00:06,970 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-01-16 16:00:12,056 basehttp "GET /admin/simulations/simulationresult/ HTTP/1.1" 200 14411
+INFO 2026-01-16 16:00:12,100 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-01-16 16:17:33,232 autoreload Watching for file changes with StatReloader
+ERROR 2026-01-16 16:17:50,791 log Internal Server Error: /simulations/scenarios/
+Traceback (most recent call last):
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 497, in dispatch
+    self.initial(request, *args, **kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 414, in initial
+    self.perform_authentication(request)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 324, in perform_authentication
+    request.user
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\request.py", line 227, in user
+    self._authenticate()
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\request.py", line 380, in _authenticate
+    user_auth_tuple = authenticator.authenticate(self)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework_simplejwt\authentication.py", line 49, in authenticate
+    validated_token = self.get_validated_token(raw_token)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework_simplejwt\authentication.py", line 113, in get_validated_token
+    raise InvalidToken(
+rest_framework_simplejwt.exceptions.InvalidToken: {'detail': ErrorDetail(string='Given token not valid for any token type', code='token_not_valid'), 'code': ErrorDetail(string='token_not_valid', code='token_not_valid'), 'messages': [{'token_class': ErrorDetail(string='AccessToken', code='token_not_valid'), 'token_type': ErrorDetail(string='access', code='token_not_valid'), 'message': ErrorDetail(string='Token is invalid or expired', code='token_not_valid')}]}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\settings.py", line 177, in import_from_string
+    return import_string(val)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\utils\module_loading.py", line 30, in import_string
+    return cached_import(module_path, class_name)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\utils\module_loading.py", line 15, in cached_import
+    module = import_module(module_path)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1004, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'core.exceptions'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 463, in handle_exception
+    exception_handler = self.get_exception_handler()
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 298, in get_exception_handler
+    return self.settings.EXCEPTION_HANDLER
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\settings.py", line 225, in __getattr__
+    val = perform_import(val, attr)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\settings.py", line 166, in perform_import
+    return import_from_string(val, setting_name)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\settings.py", line 180, in import_from_string
+    raise ImportError(msg)
+ImportError: Could not import 'core.exceptions.custom_exception_handler' for API setting 'EXCEPTION_HANDLER'. ModuleNotFoundError: No module named 'core.exceptions'.
+ERROR 2026-01-16 16:17:50,807 basehttp "GET /simulations/scenarios/ HTTP/1.1" 500 26509
+ERROR 2026-01-16 16:18:10,255 log Internal Server Error: /simulations/processes/
+Traceback (most recent call last):
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 497, in dispatch
+    self.initial(request, *args, **kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 414, in initial
+    self.perform_authentication(request)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 324, in perform_authentication
+    request.user
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\request.py", line 227, in user
+    self._authenticate()
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\request.py", line 380, in _authenticate
+    user_auth_tuple = authenticator.authenticate(self)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework_simplejwt\authentication.py", line 49, in authenticate
+    validated_token = self.get_validated_token(raw_token)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework_simplejwt\authentication.py", line 113, in get_validated_token
+    raise InvalidToken(
+rest_framework_simplejwt.exceptions.InvalidToken: {'detail': ErrorDetail(string='Given token not valid for any token type', code='token_not_valid'), 'code': ErrorDetail(string='token_not_valid', code='token_not_valid'), 'messages': [{'token_class': ErrorDetail(string='AccessToken', code='token_not_valid'), 'token_type': ErrorDetail(string='access', code='token_not_valid'), 'message': ErrorDetail(string='Token is invalid or expired', code='token_not_valid')}]}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\settings.py", line 177, in import_from_string
+    return import_string(val)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\utils\module_loading.py", line 30, in import_string
+    return cached_import(module_path, class_name)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\utils\module_loading.py", line 15, in cached_import
+    module = import_module(module_path)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1004, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'core.exceptions'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 463, in handle_exception
+    exception_handler = self.get_exception_handler()
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\views.py", line 298, in get_exception_handler
+    return self.settings.EXCEPTION_HANDLER
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\settings.py", line 225, in __getattr__
+    val = perform_import(val, attr)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\settings.py", line 166, in perform_import
+    return import_from_string(val, setting_name)
+  File "C:\Users\Admin\Desktop\Risk Simulator\ENV\lib\site-packages\rest_framework\settings.py", line 180, in import_from_string
+    raise ImportError(msg)
+ImportError: Could not import 'core.exceptions.custom_exception_handler' for API setting 'EXCEPTION_HANDLER'. ModuleNotFoundError: No module named 'core.exceptions'.
+ERROR 2026-01-16 16:18:10,276 basehttp "GET /simulations/processes/ HTTP/1.1" 500 26506
+INFO 2026-01-16 16:18:33,803 basehttp "GET /admin/simulations/scenariotemplate/ HTTP/1.1" 200 19877
+INFO 2026-01-16 16:18:33,857 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-01-16 16:18:36,228 basehttp "GET /admin/simulations/scenariotemplate/498368a4-1cc7-4a9d-b1a2-f0758f865b91/change/ HTTP/1.1" 200 21941
+INFO 2026-01-16 16:18:36,280 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-01-16 16:18:36,405 basehttp "GET /static/admin/css/forms.css HTTP/1.1" 200 9090
+INFO 2026-01-16 16:18:36,411 basehttp "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+INFO 2026-01-16 16:18:36,426 basehttp "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+INFO 2026-01-16 16:18:36,439 basehttp "GET /static/admin/css/widgets.css HTTP/1.1" 200 11800
+INFO 2026-01-16 16:19:45,782 basehttp "GET /admin/Account/customuser/ HTTP/1.1" 200 19061
+INFO 2026-01-16 16:19:45,845 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-01-16 16:20:17,406 basehttp "POST /auth/login/ HTTP/1.1" 200 742
+INFO 2026-01-16 16:20:44,135 basehttp "GET /simulations/processes/ HTTP/1.1" 200 2
+INFO 2026-01-16 16:20:53,808 basehttp "GET /simulations/scenarios/ HTTP/1.1" 200 4510

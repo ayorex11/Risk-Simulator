@@ -26,7 +26,7 @@ class BusinessProcessSerializer(serializers.ModelSerializer):
             'owner', 'owner_name', 'department',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'owner']
     
     def get_dependent_vendor_names(self, obj):
         return [vendor.name for vendor in obj.dependent_vendors.all()]

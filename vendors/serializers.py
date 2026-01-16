@@ -159,12 +159,12 @@ class VendorCreateUpdateSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
+        request = self.context.get('request')
         profile = request.user.profile
         """Create vendor and calculate risk score"""
         dependent_vendors = validated_data.pop('dependent_vendors', [])
         
         # Set organization from request context
-        request = self.context.get('request')
         if request and hasattr(request.user, 'profile'):
             validated_data['organization'] = profile.organization
             validated_data['created_by'] = request.user

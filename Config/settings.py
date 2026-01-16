@@ -292,31 +292,86 @@ LOGGING = {
 
 # Simulation Engine Settings
 SIMULATION_CONFIG = {
-    'MAX_MONTE_CARLO_ITERATIONS': 10000,
-    'DEFAULT_MONTE_CARLO_ITERATIONS': 1000,
-    'TIMEOUT_SECONDS': 300,  # 5 minutes max for simulation execution
+    # Cost calculations
+    'PER_RECORD_BREACH_COST': 150,  # Average cost per breached record (USD)
+    'GDPR_PENALTY_PER_RECORD': 4,   # GDPR penalty per record (EUR ~= USD)
+    'HIPAA_PENALTY_PER_RECORD': 250, # HIPAA penalty per record (USD)
     
-    # Cost constants for impact calculations
-    'PER_RECORD_BREACH_COST': 150,  # Average cost per record breached (USD)
-    'GDPR_PENALTY_PER_RECORD': 4,
-    'HIPAA_PENALTY_PER_RECORD': 250,
-    'PCI_DSS_FINE_BASE': 50000,
+    # Industry-specific churn rates (percentage)
+    'CHURN_RATES': {
+        'technology': 0.15,
+        'healthcare': 0.20,
+        'financial': 0.25,
+        'retail': 0.18,
+        'manufacturing': 0.12,
+        'professional_services': 0.14,
+        'education': 0.10,
+        'government': 0.08,
+        'default': 0.15
+    },
     
-    # Recovery time multipliers
+    # Recovery time multipliers by scenario type
     'RECOVERY_TIME_MULTIPLIERS': {
         'data_breach': 1.5,
         'ransomware': 2.0,
-        'service_disruption': 1.0,
-        'supply_chain': 2.5,
-        'multi_vendor': 3.0,
+        'service_disruption': 1.2,
+        'supply_chain': 3.0,
+        'multi_vendor': 2.5
     },
     
-    # Customer churn rates by industry (percentage)
-    'CHURN_RATES': {
-        'financial': 0.15,
-        'healthcare': 0.10,
-        'technology': 0.20,
-        'retail': 0.25,
-        'other': 0.15,
+    # Monte Carlo simulation settings
+    'MAX_MONTE_CARLO_ITERATIONS': 10000,
+    'DEFAULT_MONTE_CARLO_ITERATIONS': 1000,
+    'MONTE_CARLO_VARIANCE': 0.15,  # 15% standard deviation
+    
+    # Cascade analysis settings
+    'MAX_CASCADE_DEPTH': 5,
+    'CASCADE_IMPACT_DECAY': 0.8,  # 20% reduction per level
+    
+    # Risk score thresholds
+    'RISK_SCORE_THRESHOLDS': {
+        'critical': 75,
+        'high': 50,
+        'medium': 25,
+        'low': 0
     },
+    
+    # Customer lifetime value estimates (USD) by industry
+    'CUSTOMER_LIFETIME_VALUES': {
+        'technology': 5000,
+        'healthcare': 3000,
+        'financial': 8000,
+        'retail': 500,
+        'manufacturing': 10000,
+        'professional_services': 4000,
+        'default': 2000
+    },
+    
+    # Hourly IT team rates for incident response
+    'INCIDENT_RESPONSE_HOURLY_RATE': 250,
+    
+    # SLA breach penalty rates
+    'SLA_PENALTY_RATES': {
+        'minor': 0.01,   # 1% of contract value
+        'moderate': 0.05,  # 5% of contract value
+        'major': 0.10,    # 10% of contract value
+        'critical': 0.20   # 20% of contract value
+    },
+    
+    # Reputational damage estimates (USD)
+    'REPUTATIONAL_DAMAGE': {
+        'minor': 50000,
+        'moderate': 200000,
+        'major': 1000000,
+        'severe': 5000000
+    },
+    
+    # Regulatory notification costs
+    'NOTIFICATION_COSTS': {
+        'per_customer_email': 1,
+        'per_customer_letter': 5,
+        'per_customer_credit_monitoring': 150,
+        'legal_review': 50000,
+        'pr_crisis_management': 100000
+    }
 }
