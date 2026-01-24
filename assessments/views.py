@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -26,7 +26,7 @@ from drf_yasg.utils import swagger_auto_schema
 @swagger_auto_schema(methods=['POST'], request_body=VendorAssessmentCreateUpdateSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def assessment_list_create(request):
     """List assessments or create new assessment"""
     profile = request.user.profile 
@@ -96,7 +96,7 @@ def assessment_list_create(request):
 @swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=VendorAssessmentCreateUpdateSerializer)
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def assessment_detail(request, assessment_id):
     """Get, update, or delete an assessment"""
     profile = request.user.profile
@@ -154,7 +154,7 @@ def assessment_detail(request, assessment_id):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def approve_assessment(request, assessment_id):
     """Approve an assessment"""
     profile = request.user.profile
@@ -318,7 +318,7 @@ def assessment_summary(request):
 @swagger_auto_schema(methods=['POST'], request_body=AssessmentQuestionSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def question_list_create(request):
     """List questions or create new question (admin only)"""
     profile = request.user.profile
@@ -403,7 +403,7 @@ def get_questionnaire_template(request):
 @swagger_auto_schema(methods=['POST'], request_body=AssessmentTemplateSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def template_list_create(request):
     """List templates or create new template (admin only)"""
     profile = get_object_or_404(UserProfile, user = request.user)
@@ -445,7 +445,7 @@ def template_detail(request, template_id):
 @swagger_auto_schema(methods=['POST'], request_body=AssessmentEvidenceSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def evidence_list_create(request, assessment_id):
     """List or upload evidence for assessment"""
     profile = request.user.profile

@@ -180,6 +180,14 @@ def get_organization(request):
     serializer = OrganizationDetailSerializer(organization)
     return Response(serializer.data)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def  get_all_organizations(request):
+    """Get list of all organizations"""
+    organizations = Organization.objects.all()
+    serializer = OrganizationDetailSerializer(organizations, many=True)
+    return Response(serializer.data)
+
 
 @swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=OrganizationSerializer)
 @api_view(['PUT', 'PATCH'])

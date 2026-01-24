@@ -12,6 +12,7 @@ urlpatterns = [
     path('users/<uuid:user_id>/profile/', views.update_user_profile, name='update-profile'),
     path('users/permissions/', views.get_user_permissions, name='user-permissions'),
     path('organization/', views.get_organization, name='organization'),
+    path('organizations/', views.get_all_organizations, name='all-organizations'),
     path('organization/update/', views.update_organization, name='update-organization'),
     path('organization/create/', views.create_organization, name='create-organization'),
     path('organization/stats/', views.get_organization_stats, name='organization-stats'),

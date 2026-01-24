@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -33,7 +33,7 @@ logger = logging.getLogger('simulations')
 @swagger_auto_schema(methods=['POST'], request_body=BusinessProcessSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def process_list_create(request):
     """List business processes or create new process"""
     profile = request.user.profile
@@ -91,7 +91,7 @@ def process_list_create(request):
 @swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=BusinessProcessSerializer)
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def process_detail(request, process_id):
     """Get, update, or delete a business process"""
     profile = request.user.profile
@@ -456,7 +456,7 @@ def _estimate_execution_time(scenario_type):
 @swagger_auto_schema(methods=['POST'], request_body=SimulationCreateSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def simulation_list_create(request):
     """List simulations or create new simulation"""
     profile = request.user.profile
@@ -549,7 +549,7 @@ def simulation_detail(request, simulation_id):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def execute_simulation(request, simulation_id):
     """Execute a simulation - THE MAGIC HAPPENS HERE! """
     profile = request.user.profile
@@ -604,7 +604,7 @@ def execute_simulation(request, simulation_id):
 @swagger_auto_schema(methods=['POST'], request_body=WhatIfAnalysisSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def what_if_analysis(request):
     """Run what-if analysis with parameter variations"""
     profile = request.user.profile
@@ -655,7 +655,7 @@ def what_if_analysis(request):
 @swagger_auto_schema(methods=['POST'], request_body=SimulationComparisonRequestSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def compare_simulations(request):
     """Compare multiple simulations"""
     profile = request.user.profile
@@ -824,7 +824,7 @@ def result_detail(request, simulation_id):
 @swagger_auto_schema(methods=['POST'], request_body=BatchSimulationSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def batch_create_simulations(request):
     """Create multiple simulations at once"""
     profile = request.user.profile

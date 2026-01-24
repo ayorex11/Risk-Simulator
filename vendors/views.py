@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes,parser_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -24,7 +24,7 @@ from drf_yasg.utils import swagger_auto_schema
 @swagger_auto_schema(methods=['POST'], request_body=VendorCreateUpdateSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def vendor_list_create(request):
     """List all vendors or create new vendor"""
     profile = request.user.profile
@@ -94,7 +94,7 @@ def vendor_list_create(request):
 @swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=VendorCreateUpdateSerializer)
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def vendor_detail(request, vendor_id):
     """Get, update, or delete a vendor"""
     profile = request.user.profile
@@ -150,7 +150,7 @@ def vendor_detail(request, vendor_id):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def recalculate_vendor_risk(request, vendor_id):
     """Manually recalculate vendor risk score"""
     profile = request.user.profile
@@ -297,7 +297,7 @@ def vendor_summary(request):
 @swagger_auto_schema(methods=['POST'], request_body=CompareVendorsSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def compare_vendors(request):
     """Compare multiple vendors"""
     profile = request.user.profile
@@ -372,7 +372,7 @@ def compare_vendors(request):
 
 @swagger_auto_schema(methods=['POST'], request_body=IncidentHistorySerializer)
 @api_view(['GET', 'POST'])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 @permission_classes([IsAuthenticated])
 def incident_list_create(request):
     """List incidents or create new incident"""
@@ -438,7 +438,7 @@ def incident_list_create(request):
 @swagger_auto_schema(methods=['PUT', 'PATCH'], request_body=IncidentHistorySerializer)
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def incident_detail(request, incident_id):
     """Get, update, or delete an incident"""
     profile = request.user.profile
@@ -527,7 +527,7 @@ def incident_trends(request):
 @swagger_auto_schema(methods=['POST'], request_body=ComplianceCertificationSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
 def certification_list_create(request):
     """List certifications or create new certification"""
     profile = request.user.profile
@@ -607,7 +607,7 @@ def certification_expiring_soon(request):
 @swagger_auto_schema(methods=['POST'], request_body=VendorContactSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([FormParser, MultiPartParser])
+@parser_classes([JSONParser,FormParser, MultiPartParser])
 def vendor_contact_list_create(request, vendor_id):
     """List or create vendor contacts"""
     profile = request.user.profile
