@@ -1,4 +1,3 @@
-
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -6,7 +5,6 @@ from core.models import Organization
 import uuid
 
 class Vendor(models.Model):
-    """Third-party vendor model"""
     RISK_LEVEL_CHOICES = [
         ('low', 'Low (0-25)'),
         ('medium', 'Medium (26-50)'),
@@ -26,50 +24,40 @@ class Vendor(models.Model):
     country = models.CharField(max_length=100)
     website = models.URLField(blank=True, null=True)
     
-    # Contact information
     contact_name = models.CharField(max_length=255)
     contact_email = models.EmailField()
     contact_phone = models.CharField(max_length=20, blank=True)
     
-    # Service information
     services_provided = models.TextField()
     contract_start_date = models.DateField()
     contract_end_date = models.DateField()
     contract_value = models.DecimalField(max_digits=15, decimal_places=2)
     
-    # Risk scoring components (0-100 scale)
     security_posture_score = models.IntegerField(
         default=0,
-        validators=[MinValueValidator(0), MaxValueValidator(100)],
-        help_text="Overall security controls score (0-100)"
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
     )
     data_sensitivity_level = models.IntegerField(
         default=1,
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
-        help_text="Data sensitivity level (1-5, 5 being most sensitive)"
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
     service_criticality_level = models.IntegerField(
         default=1,
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
-        help_text="Service criticality level (1-5, 5 being most critical)"
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
     incident_history_score = models.IntegerField(
         default=100,
-        validators=[MinValueValidator(0), MaxValueValidator(100)],
-        help_text="Historical incident score (100 = no incidents, lower = more incidents)"
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
     )
     compliance_score = models.IntegerField(
         default=0,
-        validators=[MinValueValidator(0), MaxValueValidator(50)],
-        help_text="Compliance and certification score (0-50)"
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
     )
     third_party_dependencies_score = models.IntegerField(
         default=0,
-        validators=[MinValueValidator(0), MaxValueValidator(50)],
-        help_text="Third-party dependency risk score (0-50)"
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
     )
     
-    # Calculated overall risk score
     overall_risk_score = models.FloatField(default=0.0, editable=False)
     risk_level = models.CharField(
         max_length=20,
@@ -78,19 +66,14 @@ class Vendor(models.Model):
         editable=False
     )
     
-    # Dependencies (self-referential many-to-many)
     dependent_vendors = models.ManyToManyField(
         'self',
         symmetrical=False,
         related_name='dependency_of',
-        blank=True,
-        help_text="Vendors this vendor depends on"
+        blank=True
     )
     
-    # Status
     is_active = models.BooleanField(default=True)
-    
-    # Metadata
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -116,29 +99,27 @@ class Vendor(models.Model):
         return f"{self.name} ({self.risk_level})"
     
     def calculate_risk_score(self):
-        """
-        Calculate overall risk score using weighted formula
-        Risk Score = [(SP × 0.30) + (DS × 0.20) + (SC × 0.20) + (IH × 0.15) + (TD × 0.15)] × [1 - (CS/100)]
-        """
-        # Normalize data sensitivity and service criticality to 0-100 scale
+        # Normalize variables that are not on a 0-100 scale
         ds_normalized = (self.data_sensitivity_level / 5) * 100
         sc_normalized = (self.service_criticality_level / 5) * 100
         
-        # Calculate base score
+        # Weighted Base Score Calculation
+        # IH is inverted: lower score = more incidents = higher risk
         base_score = (
             (self.security_posture_score * 0.30) +
             (ds_normalized * 0.20) +
             (sc_normalized * 0.20) +
-            ((100 - self.incident_history_score) * 0.15) +  # Invert: higher incidents = higher risk
+            ((100 - self.incident_history_score) * 0.15) +
             (self.third_party_dependencies_score * 0.15)
         )
         
-        # Apply compliance factor (good compliance reduces risk)
-        compliance_factor = 1 - (self.compliance_score / 100)
+        # Apply Compliance Factor Mitigation [1 - (CS/100)]
+        compliance_reduction = 1 - (self.compliance_score / 100)
         
-        self.overall_risk_score = base_score * compliance_factor
+        # Round final score to 3 decimal places for consistency
+        self.overall_risk_score = round(base_score * compliance_reduction, 3)
         
-        # Determine risk level
+        # Categorization based on rounded score
         if self.overall_risk_score <= 25:
             self.risk_level = 'low'
         elif self.overall_risk_score <= 50:
@@ -147,15 +128,14 @@ class Vendor(models.Model):
             self.risk_level = 'high'
         else:
             self.risk_level = 'critical'
-        
-        self.save(update_fields=['overall_risk_score', 'risk_level'])
+            
         return self.overall_risk_score
-    
+
+    def save(self, *args, **kwargs):
+        self.calculate_risk_score()
+        super().save(*args, **kwargs)
+
     def get_dependency_chain(self, depth=0, max_depth=5, visited=None):
-        """
-        Recursively get all vendor dependencies
-        Returns list of (vendor, depth) tuples
-        """
         if visited is None:
             visited = set()
         
@@ -172,7 +152,6 @@ class Vendor(models.Model):
 
 
 class IncidentHistory(models.Model):
-    """Historical security incidents for vendors"""
     INCIDENT_TYPES = [
         ('data_breach', 'Data Breach'),
         ('ransomware', 'Ransomware'),
@@ -199,7 +178,6 @@ class IncidentHistory(models.Model):
         related_name='incident_history'
     )
     
-    # Incident details
     incident_date = models.DateField()
     incident_type = models.CharField(max_length=50, choices=INCIDENT_TYPES)
     severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES)
@@ -207,28 +185,23 @@ class IncidentHistory(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     
-    # Impact metrics
-    records_affected = models.IntegerField(default=0, help_text="Number of records compromised")
-    downtime_hours = models.FloatField(default=0, help_text="Hours of service downtime")
+    records_affected = models.IntegerField(default=0)
+    downtime_hours = models.FloatField(default=0)
     financial_impact = models.DecimalField(
         max_digits=15,
         decimal_places=2,
-        default=0,
-        help_text="Estimated financial impact in USD"
+        default=0
     )
     
-    # Response effectiveness
-    time_to_detect_hours = models.FloatField(default=0, help_text="Hours to detect the incident")
-    time_to_contain_hours = models.FloatField(default=0, help_text="Hours to contain the incident")
-    time_to_recover_hours = models.FloatField(default=0, help_text="Hours to fully recover")
+    time_to_detect_hours = models.FloatField(default=0)
+    time_to_contain_hours = models.FloatField(default=0)
+    time_to_recover_hours = models.FloatField(default=0)
     
-    # Follow-up
     root_cause = models.TextField(blank=True)
     lessons_learned = models.TextField(blank=True)
     remediation_actions = models.TextField(blank=True)
     remediation_completed = models.BooleanField(default=False)
     
-    # Public disclosure
     publicly_disclosed = models.BooleanField(default=False)
     disclosure_url = models.URLField(blank=True, null=True)
     
@@ -256,12 +229,10 @@ class IncidentHistory(models.Model):
     
     @property
     def total_response_time(self):
-        """Total time from detection to recovery"""
         return self.time_to_detect_hours + self.time_to_contain_hours + self.time_to_recover_hours
 
 
 class ComplianceCertification(models.Model):
-    """Compliance certifications held by vendors"""
     CERTIFICATION_TYPES = [
         ('iso27001', 'ISO 27001'),
         ('iso27017', 'ISO 27017 (Cloud)'),
@@ -289,24 +260,20 @@ class ComplianceCertification(models.Model):
     certification_type = models.CharField(max_length=50, choices=CERTIFICATION_TYPES)
     certification_body = models.CharField(max_length=255)
     
-    # Validity period
     issue_date = models.DateField()
     expiry_date = models.DateField()
     
     is_active = models.BooleanField(default=True)
     certificate_number = models.CharField(max_length=100, blank=True)
     
-    # Documentation
     certificate_file = models.FileField(
         upload_to='certifications/',
         blank=True,
-        null=True,
-        help_text="Upload certificate document"
+        null=True
     )
     verification_url = models.URLField(blank=True, null=True)
     
     notes = models.TextField(blank=True)
-    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     verified_by = models.ForeignKey(
@@ -330,18 +297,15 @@ class ComplianceCertification(models.Model):
         return f"{self.vendor.name} - {self.get_certification_type_display()}"
     
     def is_expired(self):
-        """Check if certification is expired"""
         from django.utils import timezone
         return timezone.now().date() > self.expiry_date
     
     def days_until_expiry(self):
-        """Calculate days until expiry"""
         from django.utils import timezone
         delta = self.expiry_date - timezone.now().date()
         return delta.days
     
     def save(self, *args, **kwargs):
-        """Auto-update is_active based on expiry"""
         from django.utils import timezone
         if timezone.now().date() > self.expiry_date:
             self.is_active = False
@@ -349,7 +313,6 @@ class ComplianceCertification(models.Model):
 
 
 class VendorContact(models.Model):
-    """Additional contacts for vendors"""
     CONTACT_TYPES = [
         ('primary', 'Primary Contact'),
         ('technical', 'Technical Contact'),
