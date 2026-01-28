@@ -10,6 +10,7 @@ urlpatterns = [
     path('users/<uuid:user_id>/', views.get_user_detail, name='user-detail'),
     path('users/<uuid:user_id>/update/', views.update_user, name='update-user'),
     path('users/<uuid:user_id>/profile/', views.update_user_profile, name='update-profile'),
+    path('admin/edit/', views.admin_update_name, name='admin-update-name'),
     path('users/permissions/', views.get_user_permissions, name='user-permissions'),
     path('organization/', views.get_organization, name='organization'),
     path('organizations/', views.get_all_organizations, name='all-organizations'),

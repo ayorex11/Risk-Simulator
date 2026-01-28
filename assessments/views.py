@@ -341,7 +341,7 @@ def question_list_create(request):
         return Response(serializer.data)
     
     elif request.method == 'POST':
-        if profile.role != 'admin':
+        if profile.role != 'admin' :
             return Response(
                 {'error': 'Admin permissions required'},
                 status=status.HTTP_403_FORBIDDEN

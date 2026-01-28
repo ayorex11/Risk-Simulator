@@ -11,7 +11,7 @@ from .serializers import (
     UserSerializer, UserListSerializer, UserProfileSerializer,
     OrganizationSerializer, OrganizationDetailSerializer,
     OrganizationStatsSerializer, UpdateUserProfileSerializer,
-    OrganizationRequestSerializer 
+    OrganizationRequestSerializer, AdminUpdateFirstAndLastNameSerializer
 )
 
 
@@ -163,6 +163,29 @@ def update_user_profile(request, user_id):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@swagger_auto_schema(methods=['PATCH'], request_body=AdminUpdateFirstAndLastNameSerializer)
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def admin_update_name(request):
+    """Admin update their first and last name"""
+    profile = request.user.profile  
+    if profile.role != 'admin':
+        return Response(
+            {'error': 'Admin permissions required'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    serializer = AdminUpdateFirstAndLastNameSerializer(
+        request.user,
+        data=request.data,
+        partial=True
+    )
+    
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])

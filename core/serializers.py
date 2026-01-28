@@ -21,6 +21,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at', 'user', 'phone']
 
+class AdminUpdateFirstAndLastNameSerializer(serializers.ModelSerializer):
+    """Serializer for admin to update user's first and last name"""
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for User with profile data"""
