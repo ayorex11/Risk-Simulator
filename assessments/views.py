@@ -4,6 +4,7 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from django.db import models
 from django.db.models import Q, Avg, Count
 from django.utils import timezone
 from datetime import timedelta
@@ -19,7 +20,7 @@ from .serializers import (
     AssessmentQuestionSerializer, AssessmentTemplateSerializer,
     AssessmentTemplateDetailSerializer, AssessmentEvidenceSerializer,
     AssessmentSummarySerializer, AssessmentQuestionnaireResponseSerializer,
-    AssessmentApprovalSerializer
+    AssessmentApprovalSerializer, TemplateQuestionsSerializer
 )
 from drf_yasg.utils import swagger_auto_schema
 
@@ -206,9 +207,9 @@ def compare_assessments(request, assessment_id):
     # Find previous assessment
     previous = VendorAssessment.objects.filter(
         vendor=current.vendor,
-        assessment_date__lt=current.assessment_date,
-        status__in=['completed', 'approved']
-    ).order_by('-assessment_date').first()
+        status__in=['completed', 'approved'],
+        created_at__lt=current.created_at
+    ).exclude(id=current.id).order_by('-created_at').first()
     
     if not previous:
         return Response({
@@ -231,6 +232,10 @@ def compare_assessments(request, assessment_id):
     # Calculate improvement percentage
     if previous.overall_score > 0:
         improvement_percentage = ((current.overall_score - previous.overall_score) / previous.overall_score) * 100
+    elif current.overall_score > previous.overall_score:
+        improvement_percentage = 100.0
+    elif current.overall_score < previous.overall_score:
+        improvement_percentage = -100.0
     else:
         improvement_percentage = 0
     
@@ -311,8 +316,7 @@ def assessment_summary(request):
         'score_trends': []  # Could add monthly trends
     }
     
-    serializer = AssessmentSummarySerializer(summary)
-    return Response(serializer.data)
+    return Response(summary)
 
 
 @swagger_auto_schema(methods=['POST'], request_body=AssessmentQuestionSerializer)
@@ -397,6 +401,87 @@ def get_questionnaire_template(request):
         'categories': list(categories.values()),
         'total_questions': questions.count()
     })
+
+
+
+
+@swagger_auto_schema(methods=['POST'], request_body=TemplateQuestionsSerializer)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_questions_to_template(request, template_id):
+    """Add questions to a template"""
+    template = get_object_or_404(AssessmentTemplate, id=template_id)
+    
+    # Check permissions (only admin/creator can modify)
+    if request.user.profile.role != 'admin' and template.created_by != request.user:
+         return Response(
+            {'error': 'Permission denied'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    # Use Serializer for validation
+    serializer = TemplateQuestionsSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    question_ids = serializer.validated_data['question_ids']
+    
+    added_count = 0
+    # Determine the current max order to append new questions at the end
+    current_max_order = TemplateQuestion.objects.filter(template=template).aggregate(
+        models.Max('order')
+    )['order__max'] or 0
+
+    for q_id in question_ids:
+        try:
+            question = AssessmentQuestion.objects.get(id=q_id)
+            # Check if already exists to avoid duplicates
+            if not TemplateQuestion.objects.filter(template=template, question=question).exists():
+                TemplateQuestion.objects.create(
+                    template=template,
+                    question=question,
+                    order=current_max_order + added_count + 1
+                )
+                added_count += 1
+        except AssessmentQuestion.DoesNotExist:
+            continue
+            
+    return Response({
+        'message': f'Successfully added {added_count} questions',
+        'template_id': template.id,
+        'added_count': added_count
+    })
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def remove_question_from_template(request, template_id, tq_id):
+    """Remove a question from a template"""
+    template = get_object_or_404(AssessmentTemplate, id=template_id)
+    
+    # Check permissions
+    if request.user.profile.role != 'admin' and template.created_by != request.user:
+         return Response(
+            {'error': 'Permission denied'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    # Try deleting by TemplateQuestion ID (link ID)
+    try:
+        tq = TemplateQuestion.objects.get(id=tq_id, template=template)
+        tq.delete()
+    except TemplateQuestion.DoesNotExist:
+        # Fallback: Try deleting by Question ID (if frontend sends question ID instead)
+        try:
+            tq = TemplateQuestion.objects.get(question__id=tq_id, template=template)
+            tq.delete()
+        except TemplateQuestion.DoesNotExist:
+             return Response(
+                {'error': 'Question not found in template'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+    return Response({'message': 'Question removed successfully'})
+
 
 
 

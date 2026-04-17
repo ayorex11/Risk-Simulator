@@ -74,6 +74,12 @@ class SimulationEngine:
             # Calculate cascading impacts
             self._calculate_cascading_impacts()
             
+            # Fallback: ensure customers_affected has a value
+            if self.results['customers_affected'] == 0:
+                customer_impact_pct = self.parameters.get('customer_impact_percentage', 0) / 100
+                org_customer_base = getattr(self.organization, 'customer_base', None) or 10000
+                self.results['customers_affected'] = int(org_customer_base * customer_impact_pct)
+            
             # Calculate overall risk score
             self._calculate_risk_score()
             
@@ -165,9 +171,9 @@ class SimulationEngine:
         
         # Downtime and recovery
         self.results['downtime_hours'] = float(response_hours * 0.3)  # 30% downtime
-        self.results['estimated_recovery_time_hours'] = float(
+        self.results['estimated_recovery_time_hours'] = round(float(
             response_hours * self.config['RECOVERY_TIME_MULTIPLIERS']['data_breach']
-        )
+        ), 2)
         self.results['recovery_complexity'] = 'high' if records_compromised > 50000 else 'medium'
         
         # Affected processes (processes that use this vendor)
@@ -233,6 +239,12 @@ class SimulationEngine:
             for p in affected_processes
         )
         
+        # Fallback if no processes linked
+        if total_hourly_cost == 0:
+            hourly_cost = float(getattr(self.vendor, 'hourly_operating_cost', None) or Decimal('5000.00'))
+            business_impact_factor = self.vendor.service_criticality_level / 5
+            total_hourly_cost = hourly_cost * business_impact_factor
+        
         scope_multiplier = 1.0 if encryption_scope == 'full' else 0.5
         
         self.results['operational_costs'] = (
@@ -252,10 +264,10 @@ class SimulationEngine:
         else:
             recovery_multiplier = 2.0  # Much slower without backups
         
-        self.results['estimated_recovery_time_hours'] = float(
+        self.results['estimated_recovery_time_hours'] = round(float(
             base_recovery * recovery_multiplier * 
             self.config['RECOVERY_TIME_MULTIPLIERS']['ransomware']
-        )
+        ), 2)
         
         self.results['recovery_complexity'] = 'very_high' if not backup_available else 'high'
         
@@ -314,6 +326,12 @@ class SimulationEngine:
             )
             total_impact += process_impact
         
+        # Fallback if no processes linked
+        if total_impact == 0:
+            hourly_cost = getattr(self.vendor, 'hourly_operating_cost', None) or Decimal('5000.00')
+            business_impact_factor = Decimal(str(self.vendor.service_criticality_level / 5))
+            total_impact = Decimal(str(duration_hours)) * hourly_cost * business_impact_factor
+        
         self.results['operational_costs'] = total_impact
         
         # Direct costs (investigation and remediation)
@@ -326,9 +344,9 @@ class SimulationEngine:
         self.results['productivity_loss_percentage'] = float(customer_impact_percentage)
         
         # Recovery time
-        self.results['estimated_recovery_time_hours'] = float(
+        self.results['estimated_recovery_time_hours'] = round(float(
             duration_hours * self.config['RECOVERY_TIME_MULTIPLIERS']['service_disruption']
-        )
+        ), 2)
         self.results['recovery_complexity'] = 'medium'
         
         # SLA penalties (if applicable)
@@ -394,9 +412,9 @@ class SimulationEngine:
         self.results['downtime_hours'] = exposure_hours * 0.1  # 10% of exposure time
         
         # Recovery is COMPLEX and LONG
-        self.results['estimated_recovery_time_hours'] = float(
+        self.results['estimated_recovery_time_hours'] = round(float(
             720 * self.config['RECOVERY_TIME_MULTIPLIERS']['supply_chain']  # 30 days base
-        )
+        ), 2)
         self.results['recovery_complexity'] = 'very_high'
         
         # ALL processes potentially affected
@@ -529,33 +547,30 @@ class SimulationEngine:
     
     def _calculate_cascading_impacts(self):
         """
-        Calculate cascading impacts across vendor dependencies
-        This is called for all scenarios except multi_vendor (which handles it specially)
+        Calculate cascading impacts across vendor dependencies using CascadeAnalyzer
         """
         if self.scenario_type == 'multi_vendor':
             return  # Already handled in multi_vendor simulation
         
         logger.info("🌊 Calculating cascading impacts")
+        from .utils import CascadeAnalyzer
         
         cascade_impacts = []
+        chain = CascadeAnalyzer.trace_dependency_chain(self.vendor, max_depth=3)
         
-        # Check vendor dependencies
-        dependent_vendors = self.vendor.dependent_vendors.all()
-        
-        for dep_vendor in dependent_vendors:
-            # Impact based on dependency strength
-            impact = self._calculate_vendor_cascade_impact(dep_vendor)
+        for dep_vendor, depth, multiplier in chain:
+            if depth == 0: continue
+            base_impact = self._calculate_vendor_cascade_impact(dep_vendor)
+            impact = base_impact * Decimal(str(multiplier))
             
             cascade_impacts.append({
                 'vendor_id': str(dep_vendor.id),
                 'vendor_name': dep_vendor.name,
                 'impact': float(impact),
-                'reason': 'direct_dependency'
+                'reason': f'dependency_level_{depth}'
             })
         
-        # Calculate total
         total_cascade = sum(Decimal(str(c['impact'])) for c in cascade_impacts)
-        
         self.results['cascading_vendor_impacts'] = cascade_impacts
         self.results['total_cascading_impact'] = total_cascade
         
@@ -566,7 +581,8 @@ class SimulationEngine:
         """
         Calculate overall risk score for this simulation (0-100)
         """
-        # Normalize financial impact to 0-100 scale
+        from .utils import RiskScoreCalculator
+        
         total_financial = (
             self.results['direct_costs'] + 
             self.results['operational_costs'] + 
@@ -575,66 +591,94 @@ class SimulationEngine:
             self.results['total_cascading_impact']
         )
         
-        # Use logarithmic scale for financial impact
-        # $100K = 50, $1M = 75, $10M = 90, $100M = 100
-        import math
-        if total_financial > 0:
-            financial_score = min(100, 30 + (20 * math.log10(float(total_financial) / 100000)))
-        else:
-            financial_score = 0
-        
-        # Downtime score (0-25)
-        downtime_score = min(25, self.results['downtime_hours'] / 10)
-        
-        # Recovery complexity score (0-20)
-        complexity_scores = {
-            'low': 5,
-            'medium': 10,
-            'high': 15,
-            'very_high': 20,
-        }
-        complexity_score = complexity_scores.get(self.results['recovery_complexity'], 10)
-        
-        # Vendor base risk (0-25)
-        vendor_risk_score = self.vendor.overall_risk_score / 4
-        
-        # Combine scores
-        self.results['risk_score'] = min(100, 
-            financial_score + downtime_score + complexity_score + vendor_risk_score
+        self.results['risk_score'] = RiskScoreCalculator.calculate_scenario_risk_score(
+            financial_impact=total_financial,
+            downtime_hours=self.results['downtime_hours'],
+            recovery_complexity=self.results['recovery_complexity'],
+            vendor_risk_score=self.vendor.overall_risk_score
         )
         
         logger.info(f"📊 Risk score calculated: {self.results['risk_score']:.2f}/100")
     
+    def _sample_parameters(self, params):
+        import copy
+        import scipy.stats as stats
+        
+        sampled = copy.deepcopy(params)
+        
+        for key, value in sampled.items():
+            if isinstance(value, (int, float)):
+                if key in ['customer_impact_percentage', 'cascade_probability', 'downtime_hours', 'records_compromised', 'ransom_amount', 'duration_hours', 'affected_downstream_count', 'detection_delay_days', 'detection_time_hours']:
+                    if key in ['cascade_probability', 'customer_impact_percentage']:
+                        if key == 'customer_impact_percentage':
+                            mean = max(1, min(99, value)) / 100.0
+                            sampled_val = stats.beta.rvs(mean * 10, (1 - mean) * 10) * 100
+                        else:
+                            mean = max(0.01, min(0.99, value))
+                            sampled_val = stats.beta.rvs(mean * 10, (1 - mean) * 10)
+                    elif key in ['downtime_hours', 'detection_time_hours', 'duration_hours', 'detection_delay_days']:
+                        v = max(1.0, float(value))
+                        sampled_val = stats.lognorm.rvs(s=0.3, scale=v)
+                    else:
+                        low, high = value * 0.7, value * 1.5
+                        if high > low:
+                            c = (value - low) / (high - low)
+                            sampled_val = stats.triang.rvs(c=c, loc=low, scale=(high-low))
+                        else:
+                            sampled_val = value
+                            
+                    sampled[key] = int(sampled_val) if isinstance(value, int) else float(sampled_val)
+        return sampled
+
     def _run_monte_carlo_simulation(self):
         """
-        Run Monte Carlo simulation for probabilistic analysis
-        🎲 Statistical magic!
+        Run Monte Carlo simulation for probabilistic analysis using per-parameter independent sampling.
         """
-        logger.info(f"🎲 Running Monte Carlo simulation ({self.simulation.monte_carlo_iterations} iterations)")
+        logger.info(f"🎲 Running Monte Carlo simulation with per-parameter sampling ({self.simulation.monte_carlo_iterations} iterations)")
         
         import numpy as np
+        import copy
         
         iterations = self.simulation.monte_carlo_iterations
         results_distribution = []
         
-        # Store current results as baseline
-        baseline_total = (
-            self.results['direct_costs'] + 
-            self.results['operational_costs'] + 
-            self.results['regulatory_costs'] + 
-            self.results['reputational_costs']
-        )
+        original_parameters = copy.deepcopy(self.parameters)
+        original_results = copy.deepcopy(self.results)
         
-        # Run iterations with varying parameters
         for i in range(iterations):
-            # Vary costs by ±30% using normal distribution
-            variation = np.random.normal(1.0, 0.15)  # Mean 1.0, std 0.15
-            variation = max(0.7, min(1.3, variation))  # Clip to ±30%
+            sampled_params = self._sample_parameters(original_parameters)
+            self.parameters = sampled_params
             
-            iteration_total = float(baseline_total) * variation
+            # Reset results for iteration
+            self.results = {
+                'direct_costs': Decimal('0'), 'operational_costs': Decimal('0'),
+                'regulatory_costs': Decimal('0'), 'reputational_costs': Decimal('0'),
+                'downtime_hours': 0.0, 'productivity_loss_percentage': 0.0,
+                'customers_affected': 0, 'estimated_recovery_time_hours': 0.0,
+                'recovery_complexity': 'medium', 'cascading_vendor_impacts': [],
+                'total_cascading_impact': Decimal('0'), 'affected_process_ids': [],
+                'impact_breakdown': {}, 'risk_score': 0.0
+            }
+            
+            # Execute simulation logic purely for financial results
+            if self.scenario_type == 'data_breach': self._simulate_data_breach()
+            elif self.scenario_type == 'ransomware': self._simulate_ransomware()
+            elif self.scenario_type == 'service_disruption': self._simulate_service_disruption()
+            elif self.scenario_type == 'supply_chain': self._simulate_supply_chain_compromise()
+            elif self.scenario_type == 'multi_vendor': self._simulate_multi_vendor_failure()
+            
+            self._calculate_cascading_impacts()
+            
+            iteration_total = float(
+                self.results['direct_costs'] + self.results['operational_costs'] + 
+                self.results['regulatory_costs'] + self.results['reputational_costs'] +
+                self.results['total_cascading_impact']
+            )
             results_distribution.append(iteration_total)
+            
+        self.parameters = original_parameters
+        self.results = original_results
         
-        # Calculate statistics
         results_array = np.array(results_distribution)
         
         monte_carlo_results = {
@@ -650,22 +694,14 @@ class SimulationEngine:
             'percentile_95': float(np.percentile(results_array, 95)),
             'percentile_99': float(np.percentile(results_array, 99)),
             'confidence_intervals': {
-                '90': {
-                    'lower': float(np.percentile(results_array, 5)),
-                    'upper': float(np.percentile(results_array, 95)),
-                },
-                '95': {
-                    'lower': float(np.percentile(results_array, 2.5)),
-                    'upper': float(np.percentile(results_array, 97.5)),
-                }
+                '90': {'lower': float(np.percentile(results_array, 5)), 'upper': float(np.percentile(results_array, 95))},
+                '95': {'lower': float(np.percentile(results_array, 2.5)), 'upper': float(np.percentile(results_array, 97.5))}
             },
-            'distribution': results_distribution[:100]  # Store first 100 for visualization
+            'distribution': [float(x) for x in results_distribution[:100]]
         }
         
         self.results['monte_carlo_results'] = monte_carlo_results
-        
-        logger.info(f"🎲 Monte Carlo: Mean=${monte_carlo_results['mean']:,.0f}, "
-                   f"95th percentile=${monte_carlo_results['percentile_95']:,.0f}")
+        logger.info(f"🎲 Monte Carlo: Mean=${monte_carlo_results['mean']:,.0f}, 95th=${monte_carlo_results['percentile_95']:,.0f}")
     
     @transaction.atomic
     def _save_results(self) -> SimulationResult:

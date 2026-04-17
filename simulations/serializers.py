@@ -23,7 +23,7 @@ class BusinessProcessSerializer(serializers.ModelSerializer):
             'criticality_level', 'criticality_display',
             'hourly_operating_cost', 'annual_revenue_contribution',
             'dependent_vendors', 'dependent_vendor_names',
-            'owner', 'owner_name', 'department',
+            'owner', 'owner_name', 'department', 'customer_count',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at', 'owner']
@@ -135,6 +135,10 @@ class SimulationListSerializer(serializers.ModelSerializer):
         source='scenario_template.name',
         read_only=True
     )
+    scenario_type = serializers.CharField(
+        source='scenario_template.scenario_type',
+        read_only=True
+    )
     vendor_name = serializers.CharField(
         source='target_vendor.name',
         read_only=True
@@ -146,12 +150,15 @@ class SimulationListSerializer(serializers.ModelSerializer):
     )
     has_results = serializers.SerializerMethodField()
     
+    total_financial_impact = serializers.SerializerMethodField()
+    
     class Meta:
         model = Simulation
         fields = [
-            'id', 'name', 'scenario_name', 'vendor_name',
+            'id', 'name', 'scenario_name', 'scenario_type', 'vendor_name',
             'status', 'status_display', 'created_by', 'created_by_name',
-            'created_at', 'completed_at', 'execution_time', 'has_results'
+            'created_at', 'completed_at', 'execution_time', 'has_results',
+            'total_financial_impact'
         ]
         read_only_fields = fields
     
@@ -162,6 +169,11 @@ class SimulationListSerializer(serializers.ModelSerializer):
     
     def get_has_results(self, obj):
         return hasattr(obj, 'result')
+        
+    def get_total_financial_impact(self, obj):
+        if hasattr(obj, 'result'):
+            return obj.result.total_financial_impact
+        return 0
 
 
 class SimulationDetailSerializer(serializers.ModelSerializer):
@@ -248,6 +260,7 @@ class WhatIfAnalysisSerializer(serializers.Serializer):
     parameter_changes = serializers.JSONField()
     scenario_name = serializers.CharField(max_length=255)
     description = serializers.CharField(required=False, allow_blank=True)
+    auto_execute = serializers.BooleanField(default=False, help_text="Automatically execute the new simulation")
 
 
 class SimulationComparisonRequestSerializer(serializers.Serializer):
@@ -376,3 +389,20 @@ class BatchSimulationSerializer(serializers.Serializer):
     base_parameters = serializers.JSONField()
     use_monte_carlo = serializers.BooleanField(default=False)
     monte_carlo_iterations = serializers.IntegerField(default=1000)
+
+
+class SimulationScenarioSerializer(serializers.ModelSerializer):
+    """Serializer for Custom Simulation Scenarios"""
+    base_template_name = serializers.CharField(source='base_template.name', read_only=True)
+    created_by_name = serializers.CharField(source='created_by.get_full_name', read_only=True)
+
+    class Meta:
+        model = SimulationScenario
+        fields = [
+            'id', 'organization', 'name', 'description',
+            'base_template', 'base_template_name',
+            'custom_parameters', 'is_default', 'is_shared',
+            'created_by', 'created_by_name',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'organization', 'created_by', 'created_at', 'updated_at']

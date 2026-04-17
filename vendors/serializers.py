@@ -137,6 +137,7 @@ class VendorCreateUpdateSerializer(serializers.ModelSerializer):
             'name', 'industry', 'country', 'website', 'contact_name',
             'contact_email', 'contact_phone', 'services_provided',
             'contract_start_date', 'contract_end_date', 'contract_value',
+            'hourly_operating_cost',
             'security_posture_score', 'data_sensitivity_level',
             'service_criticality_level', 'incident_history_score',
             'compliance_score', 'third_party_dependencies_score',

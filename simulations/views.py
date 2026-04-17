@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, serializers
 from django.shortcuts import get_object_or_404
 from django.db.models import Q, Sum, Avg, Count
 from django.utils import timezone
@@ -626,6 +626,8 @@ def what_if_analysis(request):
         organization= profile.organization
     )
     
+    auto_execute = serializer.validated_data.get('auto_execute', False)
+    
     # Create new simulation with modified parameters
     new_params = base_simulation.parameters.copy()
     new_params.update(parameter_changes)
@@ -643,13 +645,28 @@ def what_if_analysis(request):
         tags=['what-if-analysis', f'base:{str(base_simulation.id)}']
     )
     
-    return Response({
+    response_data = {
         'message': 'What-if scenario created successfully',
         'base_simulation': SimulationListSerializer(base_simulation).data,
         'new_simulation': SimulationDetailSerializer(new_simulation).data,
         'parameter_changes': parameter_changes,
-        'note': 'Execute the new simulation to see results'
-    }, status=status.HTTP_201_CREATED)
+        'note': 'Execute the new simulation to see results if it was not auto-executed'
+    }
+    
+    if auto_execute:
+        from .engine import SimulationEngine
+        new_simulation.status = 'running'
+        new_simulation.save()
+        try:
+            engine = SimulationEngine(new_simulation)
+            engine.execute()
+            response_data['execution_status'] = 'completed'
+            response_data['note'] = 'Simulation was auto-executed successfully.'
+        except Exception as e:
+            response_data['execution_status'] = 'failed'
+            response_data['note'] = f'Auto-execution failed: {str(e)}'
+    
+    return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 @swagger_auto_schema(methods=['POST'], request_body=SimulationComparisonRequestSerializer)
@@ -791,8 +808,8 @@ def simulation_summary(request):
         'highest_impact_scenarios': SimulationListSerializer(highest_impact, many=True).data,
     }
     
-    serializer = SimulationSummarySerializer(summary)
-    return Response(serializer.data)
+    
+    return Response(summary)
 
 
 # ==================== SIMULATION RESULT ENDPOINTS ====================
@@ -882,3 +899,447 @@ def batch_create_simulations(request):
         'message': f'Successfully created {len(created_simulations)} simulations',
         'simulations': SimulationListSerializer(created_simulations, many=True).data
     }, status=status.HTTP_201_CREATED)
+
+
+# ==================== DEPENDENCY MAP ENDPOINT ====================
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def dependency_map(request):
+    """
+    Return a graph structure (nodes + edges) covering:
+      - All vendors in the org and their vendor→vendor dependencies
+      - All business processes and their vendor→process relationships
+
+    Node types : 'vendor' | 'process'
+    Edge types : 'vendor_dependency' | 'vendor_process'
+    """
+    profile = request.user.profile
+
+    if not profile.organization:
+        return Response(
+            {'error': 'Organization not found'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    org = profile.organization
+
+    # ── Fetch data ───────────────────────────────────────────────
+    vendors = (
+        Vendor.objects
+        .filter(organization=org)
+        .prefetch_related('dependent_vendors')
+    )
+
+    processes = (
+        BusinessProcess.objects
+        .filter(organization=org)
+        .prefetch_related('dependent_vendors')
+    )
+
+    # ── Build nodes ──────────────────────────────────────────────
+    nodes = []
+    vendor_ids_in_graph = set()
+
+    for v in vendors:
+        nodes.append({
+            'id': str(v.id),
+            'type': 'vendor',
+            'name': v.name,
+            'risk_level': v.risk_level,
+            'overall_risk_score': round(v.overall_risk_score, 2),
+            'industry': v.industry,
+            'is_active': v.is_active,
+        })
+        vendor_ids_in_graph.add(v.id)
+
+    for p in processes:
+        nodes.append({
+            'id': str(p.id),
+            'type': 'process',
+            'name': p.name,
+            'criticality': p.criticality_level,
+            'criticality_display': p.get_criticality_level_display(),
+            'department': p.department,
+        })
+
+    # ── Build edges ──────────────────────────────────────────────
+    edges = []
+
+    # vendor → vendor (dependency relationships)
+    for v in vendors:
+        for dep in v.dependent_vendors.all():
+            edges.append({
+                'source': str(v.id),
+                'target': str(dep.id),
+                'type': 'vendor_dependency',
+            })
+
+    # vendor → process (process depends on vendor)
+    for p in processes:
+        for v in p.dependent_vendors.all():
+            edges.append({
+                'source': str(v.id),
+                'target': str(p.id),
+                'type': 'vendor_process',
+            })
+
+    return Response({
+        'organization': org.name,
+        'summary': {
+            'total_vendor_nodes': vendors.count(),
+            'total_process_nodes': processes.count(),
+            'total_nodes': len(nodes),
+            'total_edges': len(edges),
+            'vendor_dependency_edges': sum(
+                1 for e in edges if e['type'] == 'vendor_dependency'
+            ),
+            'vendor_process_edges': sum(
+                1 for e in edges if e['type'] == 'vendor_process'
+            ),
+        },
+        'nodes': nodes,
+        'edges': edges,
+    })
+
+
+# ==================== PDF REPORT ENDPOINT ====================
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def generate_pdf_report(request, simulation_id):
+    """Generate PDF report for simulation results"""
+    import io
+    from django.http import HttpResponse as DjangoHttpResponse
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.units import inch
+    from reportlab.platypus import (
+        SimpleDocTemplate, Table, TableStyle,
+        Paragraph, Spacer, HRFlowable,
+    )
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_CENTER
+
+    profile = request.user.profile
+
+    simulation = get_object_or_404(
+        Simulation,
+        id=simulation_id,
+        organization=profile.organization,
+    )
+
+    if not hasattr(simulation, 'result'):
+        return Response(
+            {'error': 'No results available — simulation not yet executed'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    result = simulation.result
+
+    # ---- helpers ----
+    def fmt_currency(val):
+        try:
+            return f"${float(val):,.2f}"
+        except (TypeError, ValueError):
+            return "$0.00"
+
+    # ---- build PDF ----
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        rightMargin=50, leftMargin=50,
+        topMargin=50, bottomMargin=50,
+    )
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'ReportTitle', parent=styles['Title'],
+        fontSize=22, spaceAfter=6,
+        textColor=colors.HexColor('#1a1a2e'),
+    )
+    subtitle_style = ParagraphStyle(
+        'ReportSubtitle', parent=styles['Normal'],
+        fontSize=11, textColor=colors.HexColor('#555555'),
+    )
+    section_style = ParagraphStyle(
+        'SectionHeading', parent=styles['Heading2'],
+        fontSize=14, spaceBefore=12, spaceAfter=8,
+        textColor=colors.HexColor('#1a1a2e'),
+    )
+    footer_style = ParagraphStyle(
+        'ReportFooter', parent=styles['Normal'],
+        fontSize=9, textColor=colors.HexColor('#999999'),
+        alignment=TA_CENTER,
+    )
+
+    header_tbl_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1a1a2e')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 11),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cccccc')),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1),
+         [colors.white, colors.HexColor('#f9f9f9')]),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+    ])
+    col_widths = [3 * inch, 2.5 * inch]
+    elements = []
+
+    # ---- Title & metadata ----
+    elements.append(Paragraph("ScenarioForge Simulation Report", title_style))
+    elements.append(Spacer(1, 12))
+    elements.append(Paragraph(
+        f"Vendor: {simulation.target_vendor.name}", subtitle_style))
+    elements.append(Paragraph(
+        f"Scenario: {simulation.scenario_template.get_scenario_type_display()}",
+        subtitle_style))
+    elements.append(Paragraph(
+        f"Date: {simulation.created_at.strftime('%Y-%m-%d %H:%M UTC')}",
+        subtitle_style))
+    elements.append(Paragraph(
+        f"Status: {simulation.get_status_display()}", subtitle_style))
+    elements.append(Spacer(1, 20))
+
+    # ---- Financial Impact Table ----
+    elements.append(Paragraph("Financial Impact Summary", section_style))
+    fin_data = [
+        ['Category', 'Amount (USD)'],
+        ['Direct Costs', fmt_currency(result.direct_costs)],
+        ['Operational Costs', fmt_currency(result.operational_costs)],
+        ['Regulatory Costs', fmt_currency(result.regulatory_costs)],
+        ['Reputational Costs', fmt_currency(result.reputational_costs)],
+        ['TOTAL', fmt_currency(result.total_financial_impact)],
+    ]
+    fin_table = Table(fin_data, colWidths=col_widths)
+    fin_table.setStyle(header_tbl_style)
+    fin_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#e8e8e8')),
+        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+    ]))
+    elements.append(fin_table)
+    elements.append(Spacer(1, 20))
+
+    # ---- Operational Metrics ----
+    elements.append(Paragraph("Operational Metrics", section_style))
+    ops_data = [
+        ['Metric', 'Value'],
+        ['Risk Score', f"{result.risk_score:.1f} / 100"],
+        ['Downtime', f"{result.downtime_hours:.1f} hours"],
+        ['Recovery Time',
+         f"{result.estimated_recovery_time_hours:.1f} hours"],
+        ['Customers Affected', f"{result.customers_affected:,}"],
+        ['Productivity Loss',
+         f"{result.productivity_loss_percentage:.1f}%"],
+        ['Recovery Complexity', result.get_recovery_complexity_display()],
+    ]
+    ops_table = Table(ops_data, colWidths=col_widths)
+    ops_table.setStyle(header_tbl_style)
+    elements.append(ops_table)
+    elements.append(Spacer(1, 20))
+
+    # ---- Monte Carlo Summary ----
+    mc = result.monte_carlo_results
+    if mc and mc.get('mean') is not None:
+        elements.append(Paragraph(
+            "Monte Carlo Simulation Results", section_style))
+        ci_90 = mc.get('confidence_intervals', {}).get('90', {})
+        ci_95 = mc.get('confidence_intervals', {}).get('95', {})
+        mc_data = [
+            ['Statistic', 'Value'],
+            ['Iterations', str(mc.get('iterations', 'N/A'))],
+            ['Mean', fmt_currency(mc.get('mean', 0))],
+            ['Median', fmt_currency(mc.get('median', 0))],
+            ['Std Deviation', fmt_currency(mc.get('std_dev', 0))],
+            ['Minimum', fmt_currency(mc.get('min', 0))],
+            ['Maximum', fmt_currency(mc.get('max', 0))],
+            ['P90', fmt_currency(mc.get('percentile_90', 0))],
+            ['P95', fmt_currency(mc.get('percentile_95', 0))],
+            ['90% CI',
+             f"{fmt_currency(ci_90.get('lower', 0))} to "
+             f"{fmt_currency(ci_90.get('upper', 0))}"],
+            ['95% CI',
+             f"{fmt_currency(ci_95.get('lower', 0))} to "
+             f"{fmt_currency(ci_95.get('upper', 0))}"],
+        ]
+        mc_table = Table(mc_data, colWidths=col_widths)
+        mc_table.setStyle(header_tbl_style)
+        elements.append(mc_table)
+    elements.append(Spacer(1, 30))
+
+    # ---- Footer ----
+    elements.append(HRFlowable(
+        width="100%", thickness=1, color=colors.HexColor('#cccccc')))
+    elements.append(Spacer(1, 8))
+    elements.append(Paragraph(
+        "Generated by ScenarioForge | Confidential", footer_style))
+
+    # ---- Build & return ----
+    doc.build(elements)
+    buffer.seek(0)
+    pdf_response = DjangoHttpResponse(
+        buffer.getvalue(), content_type='application/pdf')
+    pdf_response['Content-Disposition'] = (
+        f'attachment; filename="scenarioforge_report_{simulation_id}.pdf"'
+    )
+    return pdf_response
+
+
+# ==================== RERUN ENDPOINT ====================
+@swagger_auto_schema(methods=['POST'], request_body=serializers.DictField(required=False))
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
+def rerun_simulation(request, simulation_id):
+    """Re-run an existing simulation with optional parameter updates"""
+    profile = request.user.profile
+    
+    simulation = get_object_or_404(
+        Simulation,
+        id=simulation_id,
+        organization=profile.organization
+    )
+    
+    parameters = request.data.get('parameters')
+    if parameters and isinstance(parameters, dict):
+        new_params = simulation.parameters.copy()
+        new_params.update(parameters)
+        simulation.parameters = new_params
+        simulation.save(update_fields=['parameters'])
+        
+    try:
+        from .engine import SimulationEngine
+        simulation.status = 'running'
+        simulation.save()
+        
+        engine = SimulationEngine(simulation)
+        engine.execute()
+        
+        return Response({
+            'message': 'Simulation re-run successfully',
+            'simulation_id': str(simulation.id),
+            'status': simulation.status
+        })
+    except Exception as e:
+        return Response({
+            'error': f'Failed to re-run simulation: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# ==================== SCENARIO CRUD ENDPOINTS ====================
+
+@swagger_auto_schema(methods=['POST'], request_body=SimulationScenarioSerializer)
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
+def scenario_list_create(request):
+    """List or create custom simulation scenarios"""
+    profile = request.user.profile
+    
+    if request.method == 'GET':
+        scenarios = SimulationScenario.objects.filter(
+            Q(organization=profile.organization) | Q(is_default=True)
+        )
+        serializer = SimulationScenarioSerializer(scenarios, many=True)
+        return Response(serializer.data)
+        
+    elif request.method == 'POST':
+        serializer = SimulationScenarioSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(
+                organization=profile.organization,
+                created_by=request.user
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@swagger_auto_schema(methods=['PUT'], request_body=SimulationScenarioSerializer)
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
+def scenario_detail(request, scenario_id):
+    """Retrieve, update or delete a custom simulation scenario"""
+    profile = request.user.profile
+    
+    scenario = get_object_or_404(
+        SimulationScenario,
+        id=scenario_id,
+        organization=profile.organization
+    )
+    
+    if request.method == 'GET':
+        return Response(SimulationScenarioSerializer(scenario).data)
+        
+    elif request.method == 'PUT':
+        serializer = SimulationScenarioSerializer(scenario, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    elif request.method == 'DELETE':
+        scenario.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ==================== COMPARISON CRUD ENDPOINTS ====================
+
+@swagger_auto_schema(methods=['POST'], request_body=SimulationComparisonSerializer)
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
+def comparison_list_create(request):
+    """List or create simulation comparisons"""
+    profile = request.user.profile
+    
+    if request.method == 'GET':
+        comparisons = SimulationComparison.objects.filter(organization=profile.organization)
+        serializer = SimulationComparisonSerializer(comparisons, many=True)
+        return Response(serializer.data)
+        
+    elif request.method == 'POST':
+        serializer = SimulationComparisonSerializer(data=request.data)
+        if serializer.is_valid():
+            simulations = request.data.get('simulations', [])
+            comparison = serializer.save(
+                organization=profile.organization,
+                created_by=request.user
+            )
+            if simulations:
+                comparison.simulations.set(simulations)
+            return Response(SimulationComparisonSerializer(comparison).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@swagger_auto_schema(methods=['PUT'], request_body=SimulationComparisonSerializer)
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
+def comparison_detail(request, comparison_id):
+    """Retrieve, update or delete a simulation comparison"""
+    profile = request.user.profile
+    
+    comparison = get_object_or_404(
+        SimulationComparison,
+        id=comparison_id,
+        organization=profile.organization
+    )
+    
+    if request.method == 'GET':
+        return Response(SimulationComparisonSerializer(comparison).data)
+        
+    elif request.method == 'PUT':
+        serializer = SimulationComparisonSerializer(comparison, data=request.data, partial=True)
+        if serializer.is_valid():
+            simulations = request.data.get('simulations')
+            if simulations is not None:
+                comparison.simulations.set(simulations)
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    elif request.method == 'DELETE':
+        comparison.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

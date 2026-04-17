@@ -16,6 +16,10 @@ class Organization(models.Model):
     industry = models.CharField(max_length=100)
     size = models.CharField(choices= size_choice, max_length=50)
     country = models.CharField(max_length=100)
+    customer_base = models.IntegerField(
+        default=10000,
+        help_text="Estimated number of customers served by this organisation"
+    )
 
     config = models.JSONField(default=dict, blank=True)
     

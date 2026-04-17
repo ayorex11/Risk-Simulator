@@ -346,3 +346,11 @@ class AssessmentScheduleSerializer(serializers.Serializer):
     scheduled_date = serializers.DateField()
     assigned_to = serializers.UUIDField(required=False)
     notes = serializers.CharField(required=False, allow_blank=True)
+
+class TemplateQuestionsSerializer(serializers.Serializer):
+    """Serializer for adding multiple questions to a template"""
+    question_ids = serializers.ListField(
+        child=serializers.UUIDField(),
+        allow_empty=False,
+        help_text="List of Question IDs to add to the template"
+    )

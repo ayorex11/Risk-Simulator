@@ -32,6 +32,12 @@ class Vendor(models.Model):
     contract_start_date = models.DateField()
     contract_end_date = models.DateField()
     contract_value = models.DecimalField(max_digits=15, decimal_places=2)
+    hourly_operating_cost = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=5000,
+        help_text="Estimated hourly cost when vendor services are unavailable"
+    )
     
     security_posture_score = models.IntegerField(
         default=0,
@@ -51,11 +57,13 @@ class Vendor(models.Model):
     )
     compliance_score = models.IntegerField(
         default=0,
-        validators=[MinValueValidator(0), MaxValueValidator(100)]
+        validators=[MinValueValidator(0), MaxValueValidator(50)],
+        help_text="Compliance status score (0–50, higher = more compliant)"
     )
     third_party_dependencies_score = models.IntegerField(
         default=0,
-        validators=[MinValueValidator(0), MaxValueValidator(100)]
+        validators=[MinValueValidator(0), MaxValueValidator(50)],
+        help_text="Third-party dependency exposure score (0–50, higher = more exposed)"
     )
     
     overall_risk_score = models.FloatField(default=0.0, editable=False)
@@ -99,27 +107,35 @@ class Vendor(models.Model):
         return f"{self.name} ({self.risk_level})"
     
     def calculate_risk_score(self):
-        # Normalize variables that are not on a 0-100 scale
-        ds_normalized = (self.data_sensitivity_level / 5) * 100
-        sc_normalized = (self.service_criticality_level / 5) * 100
-        
-        # Weighted Base Score Calculation
-        # IH is inverted: lower score = more incidents = higher risk
-        base_score = (
+        """
+        Spec-aligned 6-factor weighted risk formula:
+
+          SP  (0–100) × 0.30   Security Posture
+          DS  (1–5)   × 0.20   Data Sensitivity     — normalised ×20
+          SC  (1–5)   × 0.15   Service Criticality  — normalised ×20
+          IH  (0–100) × 0.20   Incident History     — inverted (100-IH)
+          CS  (0–50)  × 0.10   Compliance Status    — normalised ×2
+          TPD (0–50)  × 0.05   Third-Party Deps     — normalised ×2
+
+        All six terms contribute independently on a 0–100 scale.
+        """
+        # Normalise fields that are not already 0–100
+        ds_norm  = (self.data_sensitivity_level / 5) * 100          # 1-5  → 0-100
+        sc_norm  = (self.service_criticality_level / 5) * 100       # 1-5  → 0-100
+        ih_inv   = 100 - self.incident_history_score                 # invert: 0=clean
+        cs_norm  = (self.compliance_score / 50) * 100               # 0-50 → 0-100
+        tpd_norm = (self.third_party_dependencies_score / 50) * 100 # 0-50 → 0-100
+
+        self.overall_risk_score = round(
             (self.security_posture_score * 0.30) +
-            (ds_normalized * 0.20) +
-            (sc_normalized * 0.20) +
-            ((100 - self.incident_history_score) * 0.15) +
-            (self.third_party_dependencies_score * 0.15)
+            (ds_norm  * 0.20) +
+            (sc_norm  * 0.15) +
+            (ih_inv   * 0.20) +
+            (cs_norm  * 0.10) +
+            (tpd_norm * 0.05),
+            3
         )
-        
-        # Apply Compliance Factor Mitigation [1 - (CS/100)]
-        compliance_reduction = 1 - (self.compliance_score / 100)
-        
-        # Round final score to 3 decimal places for consistency
-        self.overall_risk_score = round(base_score * compliance_reduction, 3)
-        
-        # Categorization based on rounded score
+
         if self.overall_risk_score <= 25:
             self.risk_level = 'low'
         elif self.overall_risk_score <= 50:
@@ -128,7 +144,7 @@ class Vendor(models.Model):
             self.risk_level = 'high'
         else:
             self.risk_level = 'critical'
-            
+
         return self.overall_risk_score
 
     def save(self, *args, **kwargs):

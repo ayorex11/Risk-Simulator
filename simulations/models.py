@@ -60,6 +60,10 @@ class BusinessProcess(models.Model):
         related_name='owned_processes'
     )
     department = models.CharField(max_length=100, blank=True)
+    customer_count = models.IntegerField(
+        default=0,
+        help_text="Number of customers impacted if this process fails"
+    )
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

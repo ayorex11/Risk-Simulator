@@ -477,8 +477,50 @@ def approve_request(request, request_id):
     org_req.user.save()
 
     return Response({'message': 'Successfully approved'}, status=status.HTTP_200_OK)
-    
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_risk_heatmap(request):
+    """
+    Return vendor risk factor scores for heatmap visualisation.
+    Each vendor row contains all 6 risk-factor scores plus overall_risk_score
+    and risk_level so the frontend can render a colour-coded matrix.
+    """
+    profile = request.user.profile
+    if not profile.organization:
+        return Response(
+            {'error': 'Organization not found'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    from vendors.models import Vendor
+
+    vendors = Vendor.objects.filter(
+        organization=profile.organization,
+        is_active=True,
+    ).order_by('-overall_risk_score')
+
+    heatmap_rows = []
+    for v in vendors:
+        heatmap_rows.append({
+            'vendor_id': str(v.id),
+            'vendor_name': v.name,
+            'security_posture': v.security_posture_score,
+            'data_sensitivity': v.data_sensitivity_level,
+            'service_criticality': v.service_criticality_level,
+            'incident_history': v.incident_history_score,
+            'compliance_score': v.compliance_score,
+            'third_party_dependencies': v.third_party_dependencies_score,
+            'overall_risk_score': round(v.overall_risk_score, 2),
+            'risk_level': v.risk_level,
+        })
+
+    return Response({
+        'organization': profile.organization.name,
+        'total_vendors': len(heatmap_rows),
+        'vendors': heatmap_rows,
+    })
 
 
 from django.db import models
