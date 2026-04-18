@@ -246,6 +246,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
+import sys
+ 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -263,13 +265,17 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
+            # Force UTF-8 so Windows CP1252 consoles don't crash.
+            'stream': open(sys.stdout.fileno(), mode='w', encoding='utf-8', buffering=1)
+                      if hasattr(sys.stdout, 'fileno') else sys.stdout,
         },
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR / 'logs' / 'tpvrs.log',
-            'maxBytes': 1024 * 1024 * 15,  # 15MB
+            'maxBytes': 1024 * 1024 * 15,  # 15 MB
             'backupCount': 10,
             'formatter': 'verbose',
+            'encoding': 'utf-8',
         },
     },
     'root': {
@@ -292,12 +298,10 @@ LOGGING = {
 
 # Simulation Engine Settings
 SIMULATION_CONFIG = {
-    # Cost calculations
-    'PER_RECORD_BREACH_COST': 150,  # Average cost per breached record (USD)
-    'GDPR_PENALTY_PER_RECORD': 4,   # GDPR penalty per record (EUR ~= USD)
-    'HIPAA_PENALTY_PER_RECORD': 250, # HIPAA penalty per record (USD)
-    
-    # Industry-specific churn rates (percentage)
+    'PER_RECORD_BREACH_COST': 150,
+    'GDPR_PENALTY_PER_RECORD': 4,
+    'HIPAA_PENALTY_PER_RECORD': 250,
+ 
     'CHURN_RATES': {
         'technology': 0.15,
         'healthcare': 0.20,
@@ -307,36 +311,31 @@ SIMULATION_CONFIG = {
         'professional_services': 0.14,
         'education': 0.10,
         'government': 0.08,
-        'default': 0.15
+        'default': 0.15,
     },
-    
-    # Recovery time multipliers by scenario type
+ 
     'RECOVERY_TIME_MULTIPLIERS': {
         'data_breach': 1.5,
         'ransomware': 2.0,
         'service_disruption': 1.2,
         'supply_chain': 3.0,
-        'multi_vendor': 2.5
+        'multi_vendor': 2.5,
     },
-    
-    # Monte Carlo simulation settings
+ 
     'MAX_MONTE_CARLO_ITERATIONS': 10000,
     'DEFAULT_MONTE_CARLO_ITERATIONS': 1000,
-    'MONTE_CARLO_VARIANCE': 0.15,  # 15% standard deviation
-    
-    # Cascade analysis settings
+    'MONTE_CARLO_VARIANCE': 0.30,  # was 0.15 — widened to capture realistic tail risk
+ 
     'MAX_CASCADE_DEPTH': 5,
-    'CASCADE_IMPACT_DECAY': 0.8,  # 20% reduction per level
-    
-    # Risk score thresholds
+    'CASCADE_IMPACT_DECAY': 0.8,
+ 
     'RISK_SCORE_THRESHOLDS': {
         'critical': 75,
         'high': 50,
         'medium': 25,
-        'low': 0
+        'low': 0,
     },
-    
-    # Customer lifetime value estimates (USD) by industry
+ 
     'CUSTOMER_LIFETIME_VALUES': {
         'technology': 5000,
         'healthcare': 3000,
@@ -344,34 +343,30 @@ SIMULATION_CONFIG = {
         'retail': 500,
         'manufacturing': 10000,
         'professional_services': 4000,
-        'default': 2000
+        'default': 2000,
     },
-    
-    # Hourly IT team rates for incident response
+ 
     'INCIDENT_RESPONSE_HOURLY_RATE': 250,
-    
-    # SLA breach penalty rates
+ 
     'SLA_PENALTY_RATES': {
-        'minor': 0.01,   # 1% of contract value
-        'moderate': 0.05,  # 5% of contract value
-        'major': 0.10,    # 10% of contract value
-        'critical': 0.20   # 20% of contract value
+        'minor': 0.01,
+        'moderate': 0.05,
+        'major': 0.10,
+        'critical': 0.20,
     },
-    
-    # Reputational damage estimates (USD)
+ 
     'REPUTATIONAL_DAMAGE': {
         'minor': 50000,
         'moderate': 200000,
         'major': 1000000,
-        'severe': 5000000
+        'severe': 5000000,
     },
-    
-    # Regulatory notification costs
+ 
     'NOTIFICATION_COSTS': {
         'per_customer_email': 1,
         'per_customer_letter': 5,
         'per_customer_credit_monitoring': 150,
         'legal_review': 50000,
-        'pr_crisis_management': 100000
-    }
+        'pr_crisis_management': 100000,
+    },
 }
