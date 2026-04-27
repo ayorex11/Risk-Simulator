@@ -175,6 +175,7 @@ REST_FRAMEWORK = {
         'user': '1000/day',
         'anon': '100/day',
     },
+    'COERCE_DECIMAL_TO_STRING': False,
 }
 from datetime import timedelta
 

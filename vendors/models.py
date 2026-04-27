@@ -108,34 +108,44 @@ class Vendor(models.Model):
     
     def calculate_risk_score(self):
         """
-        Spec-aligned 6-factor weighted risk formula:
+        Spec-aligned 6-factor weighted risk formula from Chapter 3:
 
-          SP  (0–100) × 0.30   Security Posture
-          DS  (1–5)   × 0.20   Data Sensitivity     — normalised ×20
-          SC  (1–5)   × 0.15   Service Criticality  — normalised ×20
-          IH  (0–100) × 0.20   Incident History     — inverted (100-IH)
-          CS  (0–50)  × 0.10   Compliance Status    — normalised ×2
-          TPD (0–50)  × 0.05   Third-Party Deps     — normalised ×2
+        Risk Score = [(SP×0.30) + (DS×0.20) + (SC×0.20) + (IH×0.15) + (TD×0.15)]
+                    × [1 − (CS/100)]
 
-        All six terms contribute independently on a 0–100 scale.
+        Where all inputs are normalised to 0–100 before weighting:
+        SP  (0–100)  Security Posture        — already 0–100
+        DS  (1–5)    Data Sensitivity        — normalised: (DS/5) × 100
+        SC  (1–5)    Service Criticality     — normalised: (SC/5) × 100
+        IH  (0–100)  Incident History        — used directly (higher = worse history)
+        TD  (0–50)   Third-Party Deps        — normalised: (TD/50) × 100
+        CS  (0–50)   Compliance Status       — normalised: (CS/50) × 100
+                    Higher CS = more compliant = REDUCES risk via multiplier
         """
-        # Normalise fields that are not already 0–100
-        ds_norm  = (self.data_sensitivity_level / 5) * 100          # 1-5  → 0-100
-        sc_norm  = (self.service_criticality_level / 5) * 100       # 1-5  → 0-100
-        ih_inv   = 100 - self.incident_history_score                 # invert: 0=clean
-        cs_norm  = (self.compliance_score / 50) * 100               # 0-50 → 0-100
-        tpd_norm = (self.third_party_dependencies_score / 50) * 100 # 0-50 → 0-100
+        # Normalise all factors to 0–100
+        sp  = self.security_posture_score                        # already 0–100
+        ds  = (self.data_sensitivity_level / 5) * 100           # 1–5  → 0–100
+        sc  = (self.service_criticality_level / 5) * 100        # 1–5  → 0–100
+        ih  = self.incident_history_score                        # 0–100 (higher = worse)
+        td  = (self.third_party_dependencies_score / 50) * 100  # 0–50 → 0–100
+        cs  = (self.compliance_score / 50) * 100                # 0–50 → 0–100
 
-        self.overall_risk_score = round(
-            (self.security_posture_score * 0.30) +
-            (ds_norm  * 0.20) +
-            (sc_norm  * 0.15) +
-            (ih_inv   * 0.20) +
-            (cs_norm  * 0.10) +
-            (tpd_norm * 0.05),
-            3
+        # Weighted sum (weights match spec: 0.30 + 0.20 + 0.20 + 0.15 + 0.15 = 1.0)
+        weighted_sum = (
+            (sp * 0.30) +
+            (ds * 0.20) +
+            (sc * 0.20) +
+            (ih * 0.15) +
+            (td * 0.15)
         )
 
+        # Compliance multiplier: higher compliance reduces risk
+        # cs is 0–100 here, so [1 − (cs/100)] ranges from 1.0 (no compliance) → 0.0 (full compliance)
+        compliance_multiplier = 1 - (cs / 100)
+
+        self.overall_risk_score = round(weighted_sum * compliance_multiplier, 3)
+
+        # Categorise
         if self.overall_risk_score <= 25:
             self.risk_level = 'low'
         elif self.overall_risk_score <= 50:

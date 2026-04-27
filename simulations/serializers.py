@@ -26,7 +26,7 @@ class BusinessProcessSerializer(serializers.ModelSerializer):
             'owner', 'owner_name', 'department', 'customer_count',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at', 'owner']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'owner', 'organization']
     
     def get_dependent_vendor_names(self, obj):
         return [vendor.name for vendor in obj.dependent_vendors.all()]
@@ -57,7 +57,7 @@ class BusinessProcessListSerializer(serializers.ModelSerializer):
         model = BusinessProcess
         fields = [
             'id', 'name', 'criticality_level', 'criticality_display',
-            'hourly_operating_cost'
+            'hourly_operating_cost', 'department', 'dependent_vendors'
         ]
         read_only_fields = fields
 
@@ -406,3 +406,7 @@ class SimulationScenarioSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'organization', 'created_by', 'created_at', 'updated_at']
+
+
+class RerunSimulationSerializer(serializers.Serializer):
+    parameters = serializers.DictField(required=False)

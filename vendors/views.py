@@ -188,7 +188,7 @@ def vendor_risk_history(request, vendor_id):
     
     assessments = VendorAssessment.objects.filter(
         vendor=vendor,
-        status='completed'
+        status__in=['completed', 'approved']
     ).order_by('-assessment_date')[:12]
     
     history = [{

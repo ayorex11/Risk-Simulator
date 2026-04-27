@@ -1,6 +1,8 @@
 from decimal import Decimal
 from typing import Dict, List, Tuple
 import logging
+import math
+import numpy as np
 
 logger = logging.getLogger('simulations')
 
@@ -107,7 +109,6 @@ class RiskScoreCalculator:
         vendor_risk_score: float
     ) -> float:
         """Calculate overall risk score for a scenario (0–100)."""
-        import math
 
         # Financial impact score (0–40)
         if financial_impact > 0:
@@ -255,7 +256,6 @@ class MonteCarloSimulator:
         baseline_value * exp(-sigma^2/2), which is close to baseline_value
         for typical sigma values.
         """
-        import numpy as np
 
         # Log-normal: mean of underlying normal = 0 so median ~ baseline
         # Shift mu so that the median of the distribution equals baseline_value

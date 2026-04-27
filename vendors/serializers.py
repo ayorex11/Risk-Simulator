@@ -82,6 +82,7 @@ class VendorListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'industry', 'country', 'services_provided',
             'overall_risk_score', 'risk_level', 'risk_level_display',
+            'service_criticality_level', 'contract_value',
             'contract_end_date', 'is_active', 'created_at'
         ]
         read_only_fields = fields

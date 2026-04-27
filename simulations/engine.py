@@ -9,6 +9,10 @@ from django.db import transaction
 
 from .models import Simulation, SimulationResult, BusinessProcess
 from vendors.models import Vendor
+from .utils import CascadeAnalyzer, RiskScoreCalculator, ReportGenerator
+import copy
+import numpy as np
+import scipy.stats as stats
 
 logger = logging.getLogger('simulations')
 
@@ -595,7 +599,6 @@ class SimulationEngine:
             return
 
         logger.info("Calculating cascading impacts")
-        from .utils import CascadeAnalyzer
 
         cascade_impacts = []
         chain = CascadeAnalyzer.trace_dependency_chain(self.vendor, max_depth=3)
@@ -625,7 +628,6 @@ class SimulationEngine:
 
     def _calculate_risk_score(self):
         """Calculate overall risk score for this simulation (0–100)."""
-        from .utils import RiskScoreCalculator
 
         total_financial = (
             self.results['direct_costs'] +
@@ -653,8 +655,6 @@ class SimulationEngine:
         Return a copy of params with numeric values varied according to
         appropriate probability distributions.
         """
-        import copy
-        import scipy.stats as stats
 
         sampled = copy.deepcopy(params)
 
@@ -700,8 +700,6 @@ class SimulationEngine:
         Preserves the deterministic result already calculated; stores
         statistical summary in self.results['monte_carlo_results'].
         """
-        import copy
-        import numpy as np
 
         iterations = self.simulation.monte_carlo_iterations
         logger.info(

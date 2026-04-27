@@ -21,7 +21,7 @@ from .serializers import (
     SimulationExecutionSerializer, WhatIfAnalysisSerializer,
     SimulationComparisonRequestSerializer, SimulationComparisonSerializer,
     SimulationSummarySerializer, MonteCarloResultSerializer,
-    BatchSimulationSerializer
+    BatchSimulationSerializer, RerunSimulationSerializer
 )
 from core.models import UserProfile
 from drf_yasg.utils import swagger_auto_schema
@@ -189,7 +189,9 @@ def scenario_parameters(request, template_id):
         parameter_constraints = {
             'records_compromised': {'min': 1, 'max': 100000000},
             'detection_time_hours': {'min': 1, 'max': 8760},  # Up to 1 year
-            'attacker_dwell_time_days': {'min': 1, 'max': 365}
+            'attacker_dwell_time_days': {'min': 1, 'max': 365},
+            'data_types': ['PII', 'financial', 'healthcare', 'intellectual_property', 'credentials'],
+            'breach_vector': ['phishing', 'malware', 'sql_injection', 'misconfiguration', 'insider_threat'],
         }
         
     elif template.scenario_type == 'ransomware':
@@ -594,7 +596,7 @@ def execute_simulation(request, simulation_id):
         }, status=status.HTTP_200_OK)
         
     except Exception as e:
-        logger.error(f"Simulation execution failed: {str(e)}", exc_info=True)
+        logger.error("Simulation execution failed: %s", str(e), exc_info=True)
         return Response({
             'error': 'Simulation execution failed',
             'details': str(e)
@@ -676,28 +678,28 @@ def what_if_analysis(request):
 def compare_simulations(request):
     """Compare multiple simulations"""
     profile = request.user.profile
-    
+
     serializer = SimulationComparisonRequestSerializer(data=request.data)
-    
+
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     simulation_ids = serializer.validated_data['simulation_ids']
-    
+
     simulations = Simulation.objects.filter(
         id__in=simulation_ids,
-        organization= profile.organization
+        organization=profile.organization
     )
-    
+
     if simulations.count() != len(simulation_ids):
         return Response(
             {'error': 'One or more simulations not found'},
             status=status.HTTP_404_NOT_FOUND
         )
-    
-    # Build comparison data
+
+    # ── Build comparison data (flat financial dicts keyed by simulation ID) ──
     comparison_data = []
-    
+
     for sim in simulations:
         data = {
             'simulation_id': str(sim.id),
@@ -705,44 +707,90 @@ def compare_simulations(request):
             'vendor': sim.target_vendor.name,
             'scenario_type': sim.scenario_template.scenario_type,
             'status': sim.status,
-            'created_at': sim.created_at
+            'created_at': sim.created_at,
         }
-        
-        # Add results if available
+
         if hasattr(sim, 'result'):
             result = sim.result
             data.update({
                 'total_financial_impact': float(result.total_financial_impact),
-                'direct_costs': float(result.direct_costs),
-                'operational_costs': float(result.operational_costs),
-                'regulatory_costs': float(result.regulatory_costs),
-                'reputational_costs': float(result.reputational_costs),
-                'downtime_hours': result.downtime_hours,
-                'recovery_time_hours': result.estimated_recovery_time_hours,
-                'risk_score': result.risk_score,
+                'direct_costs':           float(result.direct_costs),
+                'operational_costs':      float(result.operational_costs),
+                'regulatory_costs':       float(result.regulatory_costs),
+                'reputational_costs':     float(result.reputational_costs),
+                'downtime_hours':         result.downtime_hours,
+                'recovery_time_hours':    result.estimated_recovery_time_hours,
+                'risk_score':             result.risk_score,
+                'customers_affected':     result.customers_affected,
             })
         else:
-            data['note'] = 'No results available - simulation not executed'
-        
+            data['note'] = 'No results available - simulation not yet executed'
+
         comparison_data.append(data)
-    
-    # Calculate summary statistics
+
+    # ── Summary statistics (only over simulations that have results) ──────────
     completed_sims = [d for d in comparison_data if 'total_financial_impact' in d]
-    
+
     summary_statistics = {}
     if completed_sims:
         impacts = [d['total_financial_impact'] for d in completed_sims]
         summary_statistics = {
-            'total_simulations': len(comparison_data),
-            'completed_simulations': len(completed_sims),
+            'total_simulations':      len(comparison_data),
+            'completed_simulations':  len(completed_sims),
             'average_impact': sum(impacts) / len(impacts) if impacts else 0,
-            'max_impact': max(impacts) if impacts else 0,
-            'min_impact': min(impacts) if impacts else 0,
+            'max_impact':     max(impacts) if impacts else 0,
+            'min_impact':     min(impacts) if impacts else 0,
         }
-    
+
+    # ── Merge financial results onto each serialised simulation object ────────
+    #
+    # SimulationListSerializer does not include a nested 'result' field, so the
+    # frontend reading sim.result.total_financial_impact would always get
+    # undefined.  We solve this by building a lookup from comparison_data and
+    # attaching a 'result' dict directly onto every serialised simulation so
+    # the frontend template can read sim.result.* without any changes to the
+    # serializer.
+    #
+    comparison_map = {d['simulation_id']: d for d in comparison_data}
+
+    simulations_with_results = []
+    for sim_data in SimulationListSerializer(simulations, many=True).data:
+        sim_id = str(sim_data['id'])
+        merged = dict(sim_data)
+
+        if sim_id in comparison_map:
+            comp = comparison_map[sim_id]
+            merged['result'] = {
+                'total_financial_impact':        comp.get('total_financial_impact', 0),
+                'direct_costs':                  comp.get('direct_costs', 0),
+                'operational_costs':             comp.get('operational_costs', 0),
+                'regulatory_costs':              comp.get('regulatory_costs', 0),
+                'reputational_costs':            comp.get('reputational_costs', 0),
+                'downtime_hours':                comp.get('downtime_hours', 0),
+                'estimated_recovery_time_hours': comp.get('recovery_time_hours', 0),
+                'risk_score':                    comp.get('risk_score', 0),
+                'customers_affected':            comp.get('customers_affected', 0),
+            }
+        else:
+            # No result yet — provide zeroed placeholder so the template
+            # never hits undefined and renders $0 rather than crashing.
+            merged['result'] = {
+                'total_financial_impact':        0,
+                'direct_costs':                  0,
+                'operational_costs':             0,
+                'regulatory_costs':              0,
+                'reputational_costs':            0,
+                'downtime_hours':                0,
+                'estimated_recovery_time_hours': 0,
+                'risk_score':                    0,
+                'customers_affected':            0,
+            }
+
+        simulations_with_results.append(merged)
+
     return Response({
-        'simulations': SimulationListSerializer(simulations, many=True).data,
-        'comparison_data': comparison_data,
+        'simulations':       simulations_with_results,
+        'comparison_data':   comparison_data,
         'summary_statistics': summary_statistics,
     })
 
@@ -1188,7 +1236,7 @@ def generate_pdf_report(request, simulation_id):
 
 
 # ==================== RERUN ENDPOINT ====================
-@swagger_auto_schema(methods=['POST'], request_body=serializers.DictField(required=False))
+@swagger_auto_schema(methods=['POST'], request_body=RerunSimulationSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([JSONParser, FormParser, MultiPartParser])

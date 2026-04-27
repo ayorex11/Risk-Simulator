@@ -120,6 +120,7 @@ class OrganizationRequest(models.Model):
         blank=False
     )
     approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return f'{self.user.user.first_name} - {self.organization}'

@@ -24,7 +24,7 @@ class BusinessProcess(models.Model):
     )
     
     name = models.CharField(max_length=255)
-    description = models.TextField()
+    description = models.TextField(blank=True, default='')
     criticality_level = models.IntegerField(
         choices=CRITICALITY_CHOICES,
         default=3,
