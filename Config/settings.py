@@ -308,6 +308,54 @@ AUTHENTICATION_BACKENDS = [
 
 import sys
  
+#LOGGING = {
+#    'version': 1,
+#    'disable_existing_loggers': False,
+#    'formatters': {
+#        'verbose': {
+#            'format': '{levelname} {asctime} {module} {message}',
+#            'style': '{',
+#        },
+#        'simple': {
+#            'format': '{levelname} {message}',
+#            'style': '{',
+#        },
+#    },
+#    'handlers': {
+#        'console': {
+#            'class': 'logging.StreamHandler',
+#            'formatter': 'verbose',
+            # Force UTF-8 so Windows CP1252 consoles don't crash.
+#            'stream': open(sys.stdout.fileno(), mode='w', encoding='utf-8', buffering=1)
+#                      if hasattr(sys.stdout, 'fileno') else sys.stdout,
+#        },
+#        'file': {
+#            'class': 'logging.handlers.RotatingFileHandler',
+#            'filename': BASE_DIR / 'logs' / 'tpvrs.log',
+#            'maxBytes': 1024 * 1024 * 15,  # 15 MB
+#            'backupCount': 10,
+#            'formatter': 'verbose',
+#            'encoding': 'utf-8',
+#        },
+#    },
+#    'root': {
+#        'handlers': ['console', 'file'],
+#        'level': 'INFO',
+#    },
+#    'loggers': {
+#        'django': {
+#            'handlers': ['console', 'file'],
+#            'level': 'INFO',
+#            'propagate': False,
+#        },
+#        'simulations': {
+#            'handlers': ['console', 'file'],
+#            'level': 'DEBUG',
+#            'propagate': False,
+#        },
+ #   },
+#}
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -325,31 +373,20 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
-            # Force UTF-8 so Windows CP1252 consoles don't crash.
-            'stream': open(sys.stdout.fileno(), mode='w', encoding='utf-8', buffering=1)
-                      if hasattr(sys.stdout, 'fileno') else sys.stdout,
-        },
-        'file': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs' / 'tpvrs.log',
-            'maxBytes': 1024 * 1024 * 15,  # 15 MB
-            'backupCount': 10,
-            'formatter': 'verbose',
-            'encoding': 'utf-8',
         },
     },
     'root': {
-        'handlers': ['console', 'file'],
+        'handlers': ['console'],
         'level': 'INFO',
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         },
         'simulations': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': False,
         },
