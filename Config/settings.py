@@ -27,9 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ["https://api.scenarioforge.xyz", "https://scenarioforge.xyz", "https://www.scenarioforge.xyz", "api.scenarioforge.xyz", "risk-simulator-production.up.railway.app"]
+ALLOWED_HOSTS = ["localhost:8000", "localhost","https://api.scenarioforge.xyz", "https://scenarioforge.xyz", "https://www.scenarioforge.xyz", "api.scenarioforge.xyz", "risk-simulator-production.up.railway.app"]
 
 
 # Application definition
@@ -158,31 +158,44 @@ USE_TZ = True
 
 import os
 
-# AWS / S3 Configuration (Railway S3 Bucket)
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_S3_BUCKET_NAME')
-AWS_S3_REGION_NAME = os.getenv('AWS_DEFAULT_REGION')
-AWS_S3_ENDPOINT_URL = os.getenv('AWS_ENDPOINT_URL')  
+AWS_S3_REGION_NAME = "auto"
+AWS_S3_ENDPOINT_URL = f"https://{os.getenv('ACCOUNT_ID')}.r2.cloudflarestorage.com"
+AWS_S3_SIGNATURE_VERSION = 's3v4'
 
-# S3 Behaviour settings
-AWS_DEFAULT_ACL = None
-AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = 'public-read'
 AWS_QUERYSTRING_AUTH = False
-AWS_S3_VERIFY = True
+AWS_S3_FILE_OVERWRITE = False
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
 
-# Storage backends
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL")
+if R2_PUBLIC_URL:
+    AWS_S3_CUSTOM_DOMAIN = R2_PUBLIC_URL
+else:
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.r2.cloudflarestorage.com"
 
-# URLs — Railway S3 uses path-style URLs via the endpoint
-STATIC_URL = f'{os.getenv("AWS_ENDPOINT_URL")}/{os.getenv("AWS_S3_BUCKET_NAME")}/static/'
-MEDIA_URL  = f'{os.getenv("AWS_ENDPOINT_URL")}/{os.getenv("AWS_S3_BUCKET_NAME")}/media/'
+STORAGES = {
+    "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "location": "media",  # All media files go to 'media/' folder in R2
+                "file_overwrite": False,
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "location": "static",  
+            },
+        },
+    }
 
-# Storage locations within the bucket
-AWS_LOCATION = ''
-STATICFILES_LOCATION = 'static'
-MEDIAFILES_LOCATION = 'media'
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
 
 
 
@@ -281,7 +294,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://api.scenarioforge.xyz",
     "https://scenarioforge.xyz",
     "https://www.scenarioforge.xyz",
-    "risk-simulator-production.up.railway.app",
+    "https://risk-simulator-production.up.railway.app",
 
 ]
 
