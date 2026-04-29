@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["https://api.scenarioforge.xyz", "https://scenarioforge.xyz", "https://www.scenarioforge.xyz", "api.scenarioforge.xyz",]
+ALLOWED_HOSTS = ["https://api.scenarioforge.xyz", "https://scenarioforge.xyz", "https://www.scenarioforge.xyz", "api.scenarioforge.xyz", "risk-simulator-production.up.railway.app"]
 
 
 # Application definition
@@ -281,6 +281,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://api.scenarioforge.xyz",
     "https://scenarioforge.xyz",
     "https://www.scenarioforge.xyz",
+    "risk-simulator-production.up.railway.app",
 
 ]
 
