@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ["localhost:8000", "localhost","https://api.scenarioforge.xyz", "https://scenarioforge.xyz", "https://www.scenarioforge.xyz", "api.scenarioforge.xyz", "risk-simulator-production.up.railway.app"]
+ALLOWED_HOSTS = ["localhost:8000", "localhost","https://api.scenarioforge.xyz", "https://www.scenarioforge.xyz/", "https://www.scenarioforge.xyz", "api.scenarioforge.xyz", "risk-simulator-production.up.railway.app"]
 
 
 # Application definition
@@ -290,7 +290,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:5173",
     "https://api.scenarioforge.xyz",
-    "https://scenarioforge.xyz",
+    "https://www.scenarioforge.xyz/",
     "https://www.scenarioforge.xyz",
     "https://risk-simulator-production.up.railway.app",
 

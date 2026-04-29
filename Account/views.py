@@ -37,7 +37,7 @@ def register(request):
         )
         
         # Send verification email
-        verification_url = f"https://scenarioforge.xyz/verify-email/{verification_token.token}/"
+        verification_url = f"https://www.scenarioforge.xyz//verify-email/{verification_token.token}/"
         send_mail(
             'Verify Your Account',
             f"""
@@ -172,7 +172,7 @@ def forgot_password(request):
             )
             
             # Send reset email
-            reset_url = f"https://scenarioforge.xyz/reset-password/{reset_token.token}/"
+            reset_url = f"https://www.scenarioforge.xyz//reset-password/{reset_token.token}/"
             send_mail(
                 'Reset Your Password',
                 f"""
@@ -348,7 +348,7 @@ def resend_verification_email(request):
         )
         
         # Send verification email
-        verification_url = f"https://scenarioforge.xyz/verify-email/{verification_token.token}/"
+        verification_url = f"https://www.scenarioforge.xyz//verify-email/{verification_token.token}/"
         
         try:
             send_mail(
