@@ -27,9 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["https://api.scenarioforge.xyz", "https://scenarioforge.xyz", "https://www.scenarioforge.xyz", "api.scenarioforge.xyz",]
 
 
 # Application definition
@@ -258,8 +258,8 @@ SIMPLE_JWT = {
 
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'webmaster@localhost'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#DEFAULT_FROM_EMAIL = 'webmaster@localhost'
 
 IS_DEVELOPMENT = DEBUG
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -278,6 +278,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:5173",
+    "https://api.scenarioforge.xyz",
+    "https://scenarioforge.xyz",
+    "https://www.scenarioforge.xyz",
+
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
