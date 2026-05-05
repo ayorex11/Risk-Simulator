@@ -290,7 +290,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:5173",
     "https://api.scenarioforge.xyz",
-    "https://www.scenarioforge.xyz/",
+    "https://www.scenarioforge.xyz",
     "https://www.scenarioforge.xyz",
     "https://risk-simulator-production.up.railway.app",
 
