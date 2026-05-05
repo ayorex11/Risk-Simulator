@@ -527,6 +527,18 @@ def simulation_list_create(request):
 def simulation_detail(request, simulation_id):
     """Get or delete a simulation"""
     profile = request.user.profile
+    from django.utils import timezone
+    from datetime import timedelta
+
+    stuck_cutoff = timezone.now() - timedelta(minutes=5)
+    Simulation.objects.filter(
+        status='running',
+        started_at__lt=stuck_cutoff,
+        organization=profile.organization,
+    ).update(
+        status='failed',
+        error_message='Simulation stuck for too long, marked as failed'
+    )
     
     simulation = get_object_or_404(
         Simulation,
@@ -553,55 +565,49 @@ def simulation_detail(request, simulation_id):
 @permission_classes([IsAuthenticated])
 @parser_classes([JSONParser, FormParser, MultiPartParser])
 def execute_simulation(request, simulation_id):
-    """Execute a simulation - THE MAGIC HAPPENS HERE! """
+    """Execute a simulation asynchronously"""
     profile = request.user.profile
-    
+
     simulation = get_object_or_404(
-        Simulation,
-        id=simulation_id,
-        organization= profile.organization
+        Simulation, id=simulation_id, organization=profile.organization
     )
-    
-    # Check if already completed
+
     force_rerun = request.data.get('force_rerun', False)
-    
+
     if simulation.status == 'completed' and not force_rerun:
+        # Already done — just return the existing result immediately
+        if hasattr(simulation, 'result'):
+            from .utils import ReportGenerator
+            executive_summary = ReportGenerator.generate_executive_summary(simulation.result)
+            return Response({
+                'message': 'Simulation already completed.',
+                'simulation': SimulationDetailSerializer(simulation).data,
+                'result': SimulationResultSerializer(simulation.result).data,
+                'executive_summary': executive_summary,
+            }, status=status.HTTP_200_OK)
         return Response(
             {'error': 'Simulation already completed. Use force_rerun=true to re-execute.'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     if simulation.status == 'running':
         return Response(
-            {'error': 'Simulation is currently running'},
+            {'error': 'Simulation is currently running. Poll GET /simulations/{id}/ for status.'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
-    try:
-        # Import and execute simulation engine
-        from .engine import SimulationEngine
-        
-        engine = SimulationEngine(simulation)
-        result = engine.execute()
-        
-        # Generate executive summary
-        from .utils import ReportGenerator
-        executive_summary = ReportGenerator.generate_executive_summary(result)
-        
-        return Response({
-            'message': 'Simulation completed successfully!',
-            'simulation': SimulationDetailSerializer(simulation).data,
-            'result': SimulationResultSerializer(result).data,
-            'executive_summary': executive_summary,
-        }, status=status.HTTP_200_OK)
-        
-    except Exception as e:
-        logger.error("Simulation execution failed: %s", str(e), exc_info=True)
-        return Response({
-            'error': 'Simulation execution failed',
-            'details': str(e)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    from .tasks import run_simulation_async
+    simulation.status = 'running'
+    simulation.started_at = timezone.now()
+    simulation.save(update_fields=['status', 'started_at'])
+
+    run_simulation_async(str(simulation_id))
+
+    return Response({
+        'message': 'Simulation started successfully. Poll GET /simulations/{id}/ for status and results.',
+        'simulation_id': str(simulation_id),
+        'status': 'running',
+    }, status=status.HTTP_202_ACCEPTED)
 
 @swagger_auto_schema(methods=['POST'], request_body=WhatIfAnalysisSerializer)
 @api_view(['POST'])
@@ -1243,37 +1249,37 @@ def generate_pdf_report(request, simulation_id):
 def rerun_simulation(request, simulation_id):
     """Re-run an existing simulation with optional parameter updates"""
     profile = request.user.profile
-    
+
     simulation = get_object_or_404(
-        Simulation,
-        id=simulation_id,
-        organization=profile.organization
+        Simulation, id=simulation_id, organization=profile.organization
     )
-    
+
+    if simulation.status == 'running':
+        return Response(
+            {'error': 'Simulation is currently running. Poll GET /simulations/{id}/ for status.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Apply parameter overrides before dispatching
     parameters = request.data.get('parameters')
     if parameters and isinstance(parameters, dict):
         new_params = simulation.parameters.copy()
         new_params.update(parameters)
         simulation.parameters = new_params
         simulation.save(update_fields=['parameters'])
-        
-    try:
-        from .engine import SimulationEngine
-        simulation.status = 'running'
-        simulation.save()
-        
-        engine = SimulationEngine(simulation)
-        engine.execute()
-        
-        return Response({
-            'message': 'Simulation re-run successfully',
-            'simulation_id': str(simulation.id),
-            'status': simulation.status
-        })
-    except Exception as e:
-        return Response({
-            'error': f'Failed to re-run simulation: {str(e)}'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    from .tasks import run_simulation_async
+    simulation.status = 'running'
+    simulation.started_at = timezone.now()
+    simulation.save(update_fields=['status', 'started_at'])
+
+    run_simulation_async(str(simulation.id))
+
+    return Response({
+        'message': 'Simulation re-run started. Poll GET /simulations/{id}/ for status and results.',
+        'simulation_id': str(simulation.id),
+        'status': 'running',
+    }, status=status.HTTP_202_ACCEPTED)
 
 
 # ==================== SCENARIO CRUD ENDPOINTS ====================
